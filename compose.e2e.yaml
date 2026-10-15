@@ -1,0 +1,35 @@
+# Entorno de pruebas independiente; usar SIEMPRE -p cabanacontrol-e2e.
+# Volumen y red separados del proyecto de desarrollo.
+services:
+  db:
+    environment:
+      POSTGRES_DB: cabanacontrol_e2e
+  backend:
+    environment:
+      POSTGRES_DB: cabanacontrol_e2e
+      DJANGO_DEBUG: 'true'
+      E2E_TEST_MODE: 'true'
+      BILLING_SIMULATION_ENABLED: 'true'
+      AI_TEST_PROVIDER: 'true'
+      WHATSAPP_TEST_PROVIDER: 'true'
+      WHATSAPP_APP_SECRET: e2e-whatsapp-app-secret-not-real
+      WHATSAPP_WEBHOOK_VERIFY_TOKEN: e2e-whatsapp-verify-not-real
+      WHATSAPP_ACTIVE_KEY_VERSION: e2e
+      WHATSAPP_ENCRYPTION_KEYS: '{"e2e":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="}'
+      FRONTEND_URL: http://localhost:15174
+      DJANGO_CSRF_TRUSTED_ORIGINS: http://localhost:15174
+    ports: !override
+      - '127.0.0.1:18001:8000'
+    command: [sh, -c, 'python manage.py migrate --noinput && python tests/e2e_seed.py && python manage.py runserver --noreload 0.0.0.0:8000']
+  whatsapp-worker:
+    environment:
+      POSTGRES_DB: cabanacontrol_e2e
+      E2E_TEST_MODE: 'true'
+      WHATSAPP_TEST_PROVIDER: 'true'
+      WHATSAPP_APP_SECRET: e2e-whatsapp-app-secret-not-real
+      WHATSAPP_WEBHOOK_VERIFY_TOKEN: e2e-whatsapp-verify-not-real
+      WHATSAPP_ACTIVE_KEY_VERSION: e2e
+      WHATSAPP_ENCRYPTION_KEYS: '{"e2e":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="}'
+  frontend:
+    ports: !override
+      - '127.0.0.1:15174:5173'

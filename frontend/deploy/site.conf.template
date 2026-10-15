@@ -1,0 +1,72 @@
+server {
+    listen 8080 default_server;
+    server_name _;
+    return 444;
+}
+server {
+    listen 8080;
+    server_name ${PUBLIC_HOST};
+    return 308 ${PUBLIC_ORIGIN}$request_uri;
+}
+server {
+    listen 8443 ssl default_server;
+    server_name _;
+    ssl_certificate /run/tls/server.crt;
+    ssl_certificate_key /run/tls/server.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    return 444;
+}
+server {
+    listen 8443 ssl;
+    server_name ${PUBLIC_HOST};
+    ssl_certificate /run/tls/server.crt;
+    ssl_certificate_key /run/tls/server.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    add_header Strict-Transport-Security "max-age=3600" always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy no-referrer always;
+    add_header X-Frame-Options DENY always;
+    root /usr/share/nginx/html;
+    location ~ ^/(api/|webhooks/|health/) {
+        proxy_pass http://backend:8000;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Forwarded "";
+        proxy_set_header X-Forwarded-Ssl "";
+        proxy_set_header X-Forwarded-Protocol "";
+        proxy_read_timeout 60s;
+        proxy_connect_timeout 3s;
+        proxy_buffering off;
+        proxy_hide_header Strict-Transport-Security;
+        proxy_hide_header X-Content-Type-Options;
+        proxy_hide_header Referrer-Policy;
+        proxy_hide_header X-Frame-Options;
+        add_header Cache-Control "no-store" always;
+        add_header Strict-Transport-Security "max-age=3600" always;
+        add_header X-Content-Type-Options nosniff always;
+        add_header Referrer-Policy no-referrer always;
+        add_header X-Frame-Options DENY always;
+    }
+    location = /media { return 404; }
+    location /media/ { return 404; }
+    location ~ /\. { return 404; }
+    location /assets/ {
+        try_files $uri =404;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        add_header Strict-Transport-Security "max-age=3600" always;
+        add_header X-Content-Type-Options nosniff always;
+        add_header Referrer-Policy no-referrer always;
+        add_header X-Frame-Options DENY always;
+    }
+    location / {
+        try_files $uri /index.html;
+        add_header Cache-Control "no-cache";
+        add_header Strict-Transport-Security "max-age=3600" always;
+        add_header X-Content-Type-Options nosniff always;
+        add_header Referrer-Policy no-referrer always;
+        add_header X-Frame-Options DENY always;
+    }
+}

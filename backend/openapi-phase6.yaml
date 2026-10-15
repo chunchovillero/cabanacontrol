@@ -1,0 +1,2832 @@
+openapi: 3.0.3
+info:
+  title: CabañaControl API
+  version: 1.0.0
+paths:
+  /api/v1/auth/csrf/:
+    get:
+      operationId: api_v1_auth_csrf_retrieve
+      tags:
+      - api
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Csrf'
+          description: ''
+  /api/v1/auth/login/:
+    post:
+      operationId: api_v1_auth_login_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+          description: ''
+  /api/v1/auth/logout/:
+    post:
+      operationId: api_v1_auth_logout_create
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/auth/me/:
+    get:
+      operationId: api_v1_auth_me_retrieve
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+          description: ''
+  /api/v1/auth/password-reset/:
+    post:
+      operationId: api_v1_auth_password_reset_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmailRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: ''
+  /api/v1/auth/password-reset/confirm/:
+    post:
+      operationId: api_v1_auth_password_reset_confirm_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirmRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirmRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirmRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: ''
+  /api/v1/availability/:
+    get:
+      operationId: api_v1_availability_list
+      parameters:
+      - in: query
+        name: from
+        schema:
+          type: string
+          format: date
+        required: true
+      - in: query
+        name: guests
+        schema:
+          type: integer
+          maximum: 32767
+          minimum: 1
+      - in: query
+        name: page
+        schema:
+          type: integer
+          minimum: 1
+      - in: query
+        name: property_id
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: to
+        schema:
+          type: string
+          format: date
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAvailabilityItemList'
+          description: ''
+  /api/v1/availability-blocks/:
+    get:
+      operationId: api_v1_availability_blocks_list
+      parameters:
+      - in: query
+        name: active
+        schema:
+          type: boolean
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - in: query
+        name: property_id
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: reason
+        schema:
+          type: string
+          enum:
+          - maintenance
+          - other
+          - owner_use
+        description: |-
+          * `maintenance` - Mantenimiento
+          * `owner_use` - Uso del propietario
+          * `other` - Otro
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBlockList'
+          description: ''
+    post:
+      operationId: api_v1_availability_blocks_create
+      parameters:
+      - in: header
+        name: X-Tenant-Context
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlockWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BlockWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BlockWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Block'
+          description: ''
+  /api/v1/availability-blocks/{block_id}/:
+    get:
+      operationId: api_v1_availability_blocks_retrieve
+      parameters:
+      - in: path
+        name: block_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Block'
+          description: ''
+    patch:
+      operationId: api_v1_availability_blocks_partial_update
+      parameters:
+      - in: header
+        name: X-Tenant-Context
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: block_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBlockWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBlockWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBlockWriteRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Block'
+          description: ''
+  /api/v1/calendar/:
+    get:
+      operationId: api_v1_calendar_retrieve
+      parameters:
+      - in: query
+        name: from
+        schema:
+          type: string
+          format: date
+        required: true
+      - in: query
+        name: property_id
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: to
+        schema:
+          type: string
+          format: date
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalendarResult'
+          description: ''
+  /api/v1/context/:
+    get:
+      operationId: api_v1_context_retrieve
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+          description: ''
+  /api/v1/dashboard/:
+    get:
+      operationId: api_v1_dashboard_retrieve
+      parameters:
+      - in: query
+        name: from
+        schema:
+          type: string
+          format: date
+        required: true
+      - in: query
+        name: property_id
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: to
+        schema:
+          type: string
+          format: date
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardResult'
+          description: ''
+  /api/v1/guests/:
+    get:
+      operationId: api_v1_guests_list
+      parameters:
+      - in: query
+        name: active
+        schema:
+          type: boolean
+      - in: query
+        name: document_type
+        schema:
+          type: string
+          enum:
+          - other
+          - passport
+          - rut
+        description: |-
+          * `rut` - RUT chileno
+          * `passport` - Pasaporte
+          * `other` - Otro documento
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedGuestListList'
+          description: ''
+    post:
+      operationId: api_v1_guests_create
+      parameters:
+      - in: header
+        name: X-Tenant-Context
+        schema:
+          type: string
+          format: uuid
+        description: UUID esperado de la empresa activa, validado contra sesión.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuestWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GuestWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GuestWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuestDetail'
+          description: ''
+  /api/v1/guests/{guest_id}/:
+    get:
+      operationId: api_v1_guests_retrieve
+      parameters:
+      - in: path
+        name: guest_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuestDetail'
+          description: ''
+    patch:
+      operationId: api_v1_guests_partial_update
+      parameters:
+      - in: header
+        name: X-Tenant-Context
+        schema:
+          type: string
+          format: uuid
+        description: UUID esperado de la empresa activa, validado contra sesión.
+        required: true
+      - in: path
+        name: guest_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedGuestWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedGuestWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedGuestWriteRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuestDetail'
+          description: ''
+  /api/v1/guests/search/:
+    post:
+      operationId: api_v1_guests_search_create
+      parameters:
+      - in: header
+        name: X-Tenant-Context
+        schema:
+          type: string
+          format: uuid
+        description: UUID esperado de la empresa activa, validado contra sesión.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GuestSearchRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GuestSearchRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GuestSearchRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuestSearchResult'
+          description: ''
+  /api/v1/payments/{payment_id}/receipt/:
+    get:
+      operationId: api_v1_payments_receipt_retrieve
+      parameters:
+      - in: path
+        name: payment_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/webp:
+              schema:
+                type: string
+                format: binary
+          description: ''
+    post:
+      operationId: api_v1_payments_receipt_create
+      parameters:
+      - in: header
+        name: X-Tenant-Context
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: payment_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReceiptUploadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+  /api/v1/payments/{payment_id}/void/:
+    post:
+      operationId: api_v1_payments_void_create
+      parameters:
+      - in: header
+        name: X-Tenant-Context
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: payment_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentVoidRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaymentVoidRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PaymentVoidRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+  /api/v1/properties/:
+    get:
+      operationId: api_v1_properties_list
+      parameters:
+      - in: query
+        name: active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Qué campo usar para ordenar los resultados.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: Un término de búsqueda.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPropertyList'
+          description: ''
+    post:
+      operationId: api_v1_properties_create
+      parameters:
+      - in: header
+        name: X-Tenant-Context
+        schema:
+          type: string
+          format: uuid
+        description: UUID esperado de la empresa activa; no selecciona ni concede
+          acceso.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PropertyWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PropertyWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PropertyWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+          description: ''
+  /api/v1/properties/{property_id}/:
+    get:
+      operationId: api_v1_properties_retrieve
+      parameters:
+      - in: path
+        name: property_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+          description: ''
+    patch:
+      operationId: api_v1_properties_partial_update
+      parameters:
+      - in: header
+        name: X-Tenant-Context
+        schema:
+          type: string
+          format: uuid
+        description: UUID esperado de la empresa activa; no selecciona ni concede
+          acceso.
+        required: true
+      - in: path
+        name: property_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPropertyWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPropertyWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPropertyWriteRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+          description: ''
+  /api/v1/properties/{property_id}/photos/:
+    get:
+      operationId: api_v1_properties_photos_list
+      parameters:
+      - in: path
+        name: property_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PropertyPhoto'
+          description: ''
+    post:
+      operationId: api_v1_properties_photos_create
+      parameters:
+      - in: header
+        name: X-Tenant-Context
+        schema:
+          type: string
+          format: uuid
+        description: UUID esperado de la empresa activa; no selecciona ni concede
+          acceso.
+        required: true
+      - in: path
+        name: property_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PhotoUploadRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PhotoUploadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyPhoto'
+          description: ''
+  /api/v1/properties/{property_id}/photos/{photo_id}/:
+    patch:
+      operationId: api_v1_properties_photos_partial_update
+      parameters:
+      - in: header
+        name: X-Tenant-Context
+        schema:
+          type: string
+          format: uuid
+        description: UUID esperado de la empresa activa; no selecciona ni concede
+          acceso.
+        required: true
+      - in: path
+        name: photo_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: property_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPhotoWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPhotoWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPhotoWriteRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyPhoto'
+          description: ''
+  /api/v1/properties/{property_id}/photos/{photo_id}/file/:
+    get:
+      operationId: api_v1_properties_photos_file_retrieve
+      parameters:
+      - in: path
+        name: photo_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: property_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/webp:
+              schema:
+                type: string
+                format: binary
+          description: ''
+  /api/v1/reservations/:
+    get:
+      operationId: api_v1_reservations_list
+      parameters:
+      - in: query
+        name: debt
+        schema:
+          type: boolean
+      - in: query
+        name: from_date
+        schema:
+          type: string
+          format: date
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - in: query
+        name: property_id
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - cancelled
+          - checked_in
+          - checked_out
+          - confirmed
+          - draft
+          - no_show
+          - pending
+        description: |-
+          * `draft` - Borrador
+          * `pending` - Pendiente
+          * `confirmed` - Confirmada
+          * `checked_in` - En estadía
+          * `checked_out` - Finalizada
+          * `cancelled` - Cancelada
+          * `no_show` - No se presentó
+      - in: query
+        name: to_date
+        schema:
+          type: string
+          format: date
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedReservationList'
+          description: ''
+    post:
+      operationId: api_v1_reservations_create
+      parameters:
+      - in: header
+        name: X-Tenant-Context
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReservationCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReservationCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationDetail'
+          description: ''
+  /api/v1/reservations/{reservation_id}/:
+    get:
+      operationId: api_v1_reservations_retrieve
+      parameters:
+      - in: path
+        name: reservation_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationDetail'
+          description: ''
+    patch:
+      operationId: api_v1_reservations_partial_update
+      parameters:
+      - in: header
+        name: X-Tenant-Context
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: reservation_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedReservationWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedReservationWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedReservationWriteRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationDetail'
+          description: ''
+  /api/v1/reservations/{reservation_id}/cancel/:
+    post:
+      operationId: api_v1_reservations_cancel_create
+      parameters:
+      - in: header
+        name: X-Tenant-Context
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: reservation_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CancelRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CancelRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationDetail'
+          description: ''
+  /api/v1/reservations/{reservation_id}/confirm/:
+    post:
+      operationId: api_v1_reservations_confirm_create
+      parameters:
+      - in: header
+        name: X-Tenant-Context
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: reservation_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationDetail'
+          description: ''
+  /api/v1/reservations/{reservation_id}/payments/:
+    get:
+      operationId: api_v1_reservations_payments_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - in: path
+        name: reservation_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPaymentList'
+          description: ''
+    post:
+      operationId: api_v1_reservations_payments_create
+      parameters:
+      - in: header
+        name: X-Tenant-Context
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: reservation_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaymentWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PaymentWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+  /api/v1/reservations/{reservation_id}/status/:
+    post:
+      operationId: api_v1_reservations_status_create
+      parameters:
+      - in: header
+        name: X-Tenant-Context
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: reservation_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransitionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TransitionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TransitionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationDetail'
+          description: ''
+  /api/v1/tenants/:
+    get:
+      operationId: api_v1_tenants_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTenantList'
+          description: ''
+  /api/v1/tenants/{tenant_id}/:
+    get:
+      operationId: api_v1_tenants_retrieve
+      parameters:
+      - in: path
+        name: tenant_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+          description: ''
+  /api/v1/tenants/{tenant_id}/memberships/:
+    get:
+      operationId: api_v1_tenants_memberships_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: Un número de página dentro del conjunto de resultados paginado.
+        schema:
+          type: integer
+      - in: path
+        name: tenant_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMembershipList'
+          description: ''
+  /api/v1/tenants/{tenant_id}/select/:
+    post:
+      operationId: api_v1_tenants_select_create
+      parameters:
+      - in: path
+        name: tenant_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+          description: ''
+components:
+  schemas:
+    AvailabilityItem:
+      type: object
+      properties:
+        property_id:
+          type: string
+          format: uuid
+        property_name:
+          type: string
+        capacity:
+          type: integer
+        available:
+          type: boolean
+      required:
+      - available
+      - capacity
+      - property_id
+      - property_name
+    Block:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        property_id:
+          type: string
+          format: uuid
+          readOnly: true
+        property_name:
+          type: string
+          readOnly: true
+        start_date:
+          type: string
+          format: date
+          readOnly: true
+        end_date:
+          type: string
+          format: date
+          readOnly: true
+        reason:
+          allOf:
+          - $ref: '#/components/schemas/ReasonEnum'
+          readOnly: true
+        notes:
+          type: string
+          readOnly: true
+        active:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - active
+      - created_at
+      - end_date
+      - id
+      - notes
+      - property_id
+      - property_name
+      - reason
+      - start_date
+      - updated_at
+    BlockWriteRequest:
+      type: object
+      properties:
+        property_id:
+          type: string
+          format: uuid
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        reason:
+          $ref: '#/components/schemas/ReasonEnum'
+        notes:
+          type: string
+          default: ''
+          maxLength: 2000
+        active:
+          type: boolean
+          default: true
+      required:
+      - end_date
+      - property_id
+      - reason
+      - start_date
+    CalendarEvent:
+      type: object
+      properties:
+        id:
+          type: string
+        kind:
+          $ref: '#/components/schemas/KindEnum'
+        entity_id:
+          type: string
+          format: uuid
+        property_id:
+          type: string
+          format: uuid
+        property_name:
+          type: string
+        property_active:
+          type: boolean
+        title:
+          type: string
+        start:
+          type: string
+          format: date
+        end:
+          type: string
+          format: date
+        status:
+          type: string
+        blocks_inventory:
+          type: boolean
+        url:
+          type: string
+      required:
+      - blocks_inventory
+      - end
+      - entity_id
+      - id
+      - kind
+      - property_active
+      - property_id
+      - property_name
+      - start
+      - status
+      - title
+      - url
+    CalendarResult:
+      type: object
+      properties:
+        timezone:
+          type: string
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/CalendarEvent'
+      required:
+      - events
+      - timezone
+    CancelRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+      required:
+      - reason
+    Csrf:
+      type: object
+      properties:
+        csrf_token:
+          type: string
+          readOnly: true
+      required:
+      - csrf_token
+    DashboardResult:
+      type: object
+      properties:
+        timezone:
+          type: string
+        from_date:
+          type: string
+          format: date
+        to_date:
+          type: string
+          format: date
+        today:
+          $ref: '#/components/schemas/TodayMetrics'
+        occupied_nights:
+          type: integer
+        capacity_nights:
+          type: integer
+        occupancy_percent:
+          type: string
+        blocked_nights:
+          type: integer
+        money:
+          type: array
+          items:
+            $ref: '#/components/schemas/MoneyMetrics'
+      required:
+      - blocked_nights
+      - capacity_nights
+      - from_date
+      - money
+      - occupancy_percent
+      - occupied_nights
+      - timezone
+      - to_date
+      - today
+    DocumentTypeEnum:
+      enum:
+      - rut
+      - passport
+      - other
+      type: string
+      description: |-
+        * `rut` - RUT chileno
+        * `passport` - Pasaporte
+        * `other` - Otro documento
+    EmailRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+      required:
+      - email
+    GuestDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        first_name:
+          type: string
+          readOnly: true
+        last_name:
+          type: string
+          readOnly: true
+        document_type:
+          allOf:
+          - $ref: '#/components/schemas/DocumentTypeEnum'
+          readOnly: true
+        document_masked:
+          type: string
+          readOnly: true
+        active:
+          type: boolean
+          readOnly: true
+        document_number:
+          type: string
+          nullable: true
+          readOnly: true
+        phone:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        notes:
+          type: string
+          nullable: true
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - active
+      - created_at
+      - document_masked
+      - document_number
+      - document_type
+      - email
+      - first_name
+      - id
+      - last_name
+      - notes
+      - phone
+      - updated_at
+    GuestList:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        first_name:
+          type: string
+          readOnly: true
+        last_name:
+          type: string
+          readOnly: true
+        document_type:
+          allOf:
+          - $ref: '#/components/schemas/DocumentTypeEnum'
+          readOnly: true
+        document_masked:
+          type: string
+          readOnly: true
+        active:
+          type: boolean
+          readOnly: true
+      required:
+      - active
+      - document_masked
+      - document_type
+      - first_name
+      - id
+      - last_name
+    GuestSearchRequest:
+      type: object
+      properties:
+        query:
+          type: string
+          default: ''
+          maxLength: 150
+        active:
+          type: boolean
+        page:
+          type: integer
+          minimum: 1
+          default: 1
+    GuestSearchResult:
+      type: object
+      properties:
+        count:
+          type: integer
+        page:
+          type: integer
+        has_next:
+          type: boolean
+        has_previous:
+          type: boolean
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/GuestList'
+      required:
+      - count
+      - has_next
+      - has_previous
+      - page
+      - results
+    GuestWriteRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        document_type:
+          $ref: '#/components/schemas/DocumentTypeEnum'
+        document_number:
+          type: string
+          minLength: 1
+          maxLength: 40
+        phone:
+          type: string
+          maxLength: 32
+        email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        notes:
+          type: string
+          maxLength: 2000
+        active:
+          type: boolean
+      required:
+      - document_number
+      - document_type
+      - first_name
+      - last_name
+    KindEnum:
+      enum:
+      - reservation
+      - block
+      type: string
+      description: |-
+        * `reservation` - reservation
+        * `block` - block
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 256
+      required:
+      - email
+      - password
+    Membership:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        user_id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        active:
+          type: boolean
+      required:
+      - id
+      - name
+      - role
+      - user_id
+    Message:
+      type: object
+      properties:
+        detail:
+          type: string
+          readOnly: true
+      required:
+      - detail
+    MethodEnum:
+      enum:
+      - cash
+      - transfer
+      - card
+      - other
+      type: string
+      description: |-
+        * `cash` - Efectivo
+        * `transfer` - Transferencia
+        * `card` - Tarjeta
+        * `other` - Otro
+    MoneyMetrics:
+      type: object
+      properties:
+        currency:
+          type: string
+        collected:
+          type: string
+        agreed:
+          type: string
+        outstanding:
+          type: string
+        credit:
+          type: string
+      required:
+      - agreed
+      - collected
+      - credit
+      - currency
+      - outstanding
+    PaginatedAvailabilityItemList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AvailabilityItem'
+    PaginatedBlockList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Block'
+    PaginatedGuestListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/GuestList'
+    PaginatedMembershipList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Membership'
+    PaginatedPaymentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+    PaginatedPropertyList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Property'
+    PaginatedReservationList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reservation'
+    PaginatedTenantList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tenant'
+    PasswordResetConfirmRequest:
+      type: object
+      properties:
+        uid:
+          type: string
+          minLength: 1
+          maxLength: 100
+        token:
+          type: string
+          minLength: 1
+          maxLength: 100
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 256
+      required:
+      - password
+      - token
+      - uid
+    PatchedBlockWriteRequest:
+      type: object
+      properties:
+        property_id:
+          type: string
+          format: uuid
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        reason:
+          $ref: '#/components/schemas/ReasonEnum'
+        notes:
+          type: string
+          default: ''
+          maxLength: 2000
+        active:
+          type: boolean
+          default: true
+    PatchedGuestWriteRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        document_type:
+          $ref: '#/components/schemas/DocumentTypeEnum'
+        document_number:
+          type: string
+          minLength: 1
+          maxLength: 40
+        phone:
+          type: string
+          maxLength: 32
+        email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        notes:
+          type: string
+          maxLength: 2000
+        active:
+          type: boolean
+    PatchedPhotoWriteRequest:
+      type: object
+      properties:
+        alt:
+          type: string
+          minLength: 1
+          maxLength: 200
+        order:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        active:
+          type: boolean
+    PatchedPropertyWriteRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        code:
+          type: string
+          minLength: 1
+          maxLength: 30
+        description:
+          type: string
+          maxLength: 5000
+        capacity:
+          type: integer
+          maximum: 32767
+          minimum: 1
+        address:
+          type: string
+          maxLength: 300
+        base_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        check_in_time:
+          type: string
+          format: time
+        check_out_time:
+          type: string
+          format: time
+        active:
+          type: boolean
+    PatchedReservationWriteRequest:
+      type: object
+      properties:
+        property_id:
+          type: string
+          format: uuid
+        primary_guest_id:
+          type: string
+          format: uuid
+        check_in:
+          type: string
+          format: date
+        check_out:
+          type: string
+          format: date
+        adults:
+          type: integer
+          maximum: 32767
+          minimum: 1
+        children:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        source:
+          $ref: '#/components/schemas/SourceEnum'
+        notes:
+          type: string
+          default: ''
+          maxLength: 2000
+        hold_until:
+          type: string
+          format: date-time
+          nullable: true
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        reservation_id:
+          type: string
+          format: uuid
+          readOnly: true
+        request_id:
+          type: string
+          format: uuid
+          readOnly: true
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+        currency:
+          type: string
+          readOnly: true
+        paid_at:
+          type: string
+          format: date-time
+          readOnly: true
+        method:
+          allOf:
+          - $ref: '#/components/schemas/MethodEnum'
+          readOnly: true
+        reference:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStatusEnum'
+          readOnly: true
+        receipt_url:
+          type: string
+          nullable: true
+          readOnly: true
+        recorded_by_id:
+          type: string
+          format: uuid
+          readOnly: true
+        voided_by_id:
+          type: string
+          format: uuid
+          nullable: true
+          readOnly: true
+        void_reason:
+          type: string
+          readOnly: true
+        voided_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - amount
+      - created_at
+      - currency
+      - id
+      - method
+      - paid_at
+      - receipt_url
+      - recorded_by_id
+      - reference
+      - request_id
+      - reservation_id
+      - status
+      - updated_at
+      - void_reason
+      - voided_at
+      - voided_by_id
+    PaymentStatusEnum:
+      enum:
+      - recorded
+      - voided
+      type: string
+      description: |-
+        * `recorded` - Registrado
+        * `voided` - Anulado
+    PaymentVoidRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+      required:
+      - reason
+    PaymentWriteRequest:
+      type: object
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        paid_at:
+          type: string
+          format: date-time
+        method:
+          $ref: '#/components/schemas/MethodEnum'
+        reference:
+          type: string
+          default: ''
+          maxLength: 150
+      required:
+      - amount
+      - method
+      - paid_at
+      - request_id
+    PhotoUploadRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+        alt:
+          type: string
+          minLength: 1
+          maxLength: 200
+        order:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          default: 0
+      required:
+      - alt
+      - file
+    Property:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        code:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        capacity:
+          type: integer
+          readOnly: true
+        address:
+          type: string
+          readOnly: true
+        base_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+        currency:
+          type: string
+          readOnly: true
+        check_in_time:
+          type: string
+          format: time
+          readOnly: true
+        check_out_time:
+          type: string
+          format: time
+          readOnly: true
+        active:
+          type: boolean
+          readOnly: true
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropertyPhoto'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - active
+      - address
+      - base_rate
+      - capacity
+      - check_in_time
+      - check_out_time
+      - code
+      - created_at
+      - currency
+      - description
+      - id
+      - name
+      - photos
+      - updated_at
+    PropertyPhoto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        url:
+          type: string
+          readOnly: true
+        alt:
+          type: string
+          maxLength: 200
+        order:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        active:
+          type: boolean
+      required:
+      - alt
+      - id
+      - url
+    PropertyWriteRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        code:
+          type: string
+          minLength: 1
+          maxLength: 30
+        description:
+          type: string
+          maxLength: 5000
+        capacity:
+          type: integer
+          maximum: 32767
+          minimum: 1
+        address:
+          type: string
+          maxLength: 300
+        base_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        check_in_time:
+          type: string
+          format: time
+        check_out_time:
+          type: string
+          format: time
+        active:
+          type: boolean
+      required:
+      - base_rate
+      - capacity
+      - check_in_time
+      - check_out_time
+      - code
+      - name
+    ReasonEnum:
+      enum:
+      - maintenance
+      - owner_use
+      - other
+      type: string
+      description: |-
+        * `maintenance` - Mantenimiento
+        * `owner_use` - Uso del propietario
+        * `other` - Otro
+    ReceiptUploadRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+      required:
+      - file
+    Reservation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        property_id:
+          type: string
+          format: uuid
+          readOnly: true
+        property_name:
+          type: string
+          readOnly: true
+        primary_guest_id:
+          type: string
+          format: uuid
+          readOnly: true
+        guest:
+          allOf:
+          - $ref: '#/components/schemas/GuestList'
+          readOnly: true
+        check_in:
+          type: string
+          format: date
+          readOnly: true
+        check_out:
+          type: string
+          format: date
+          readOnly: true
+        adults:
+          type: integer
+          readOnly: true
+        children:
+          type: integer
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ReservationStatusEnum'
+          readOnly: true
+        hold_until:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        hold_active:
+          type: boolean
+          readOnly: true
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+        received_amount:
+          type: string
+          readOnly: true
+        balance:
+          type: string
+          readOnly: true
+        payment_state:
+          type: string
+          readOnly: true
+        currency:
+          type: string
+          readOnly: true
+        source:
+          allOf:
+          - $ref: '#/components/schemas/SourceEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - adults
+      - balance
+      - check_in
+      - check_out
+      - children
+      - created_at
+      - currency
+      - guest
+      - hold_active
+      - hold_until
+      - id
+      - payment_state
+      - primary_guest_id
+      - property_id
+      - property_name
+      - received_amount
+      - source
+      - status
+      - total_amount
+      - updated_at
+    ReservationCreateRequest:
+      type: object
+      properties:
+        property_id:
+          type: string
+          format: uuid
+        primary_guest_id:
+          type: string
+          format: uuid
+        check_in:
+          type: string
+          format: date
+        check_out:
+          type: string
+          format: date
+        adults:
+          type: integer
+          maximum: 32767
+          minimum: 1
+        children:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+        source:
+          $ref: '#/components/schemas/SourceEnum'
+        notes:
+          type: string
+          default: ''
+          maxLength: 2000
+        hold_until:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          $ref: '#/components/schemas/ReservationInitialStatusEnum'
+      required:
+      - adults
+      - check_in
+      - check_out
+      - children
+      - primary_guest_id
+      - property_id
+      - source
+      - status
+      - total_amount
+    ReservationDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        property_id:
+          type: string
+          format: uuid
+          readOnly: true
+        property_name:
+          type: string
+          readOnly: true
+        primary_guest_id:
+          type: string
+          format: uuid
+          readOnly: true
+        guest:
+          allOf:
+          - $ref: '#/components/schemas/GuestList'
+          readOnly: true
+        check_in:
+          type: string
+          format: date
+          readOnly: true
+        check_out:
+          type: string
+          format: date
+          readOnly: true
+        adults:
+          type: integer
+          readOnly: true
+        children:
+          type: integer
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ReservationStatusEnum'
+          readOnly: true
+        hold_until:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        hold_active:
+          type: boolean
+          readOnly: true
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,12}(?:\.\d{0,2})?$
+          readOnly: true
+        received_amount:
+          type: string
+          readOnly: true
+        balance:
+          type: string
+          readOnly: true
+        payment_state:
+          type: string
+          readOnly: true
+        currency:
+          type: string
+          readOnly: true
+        source:
+          allOf:
+          - $ref: '#/components/schemas/SourceEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        notes:
+          type: string
+          readOnly: true
+        cancel_reason:
+          type: string
+          readOnly: true
+      required:
+      - adults
+      - balance
+      - cancel_reason
+      - check_in
+      - check_out
+      - children
+      - created_at
+      - currency
+      - guest
+      - hold_active
+      - hold_until
+      - id
+      - notes
+      - payment_state
+      - primary_guest_id
+      - property_id
+      - property_name
+      - received_amount
+      - source
+      - status
+      - total_amount
+      - updated_at
+    ReservationInitialStatusEnum:
+      enum:
+      - draft
+      - pending
+      - confirmed
+      type: string
+      description: |-
+        * `draft` - draft
+        * `pending` - pending
+        * `confirmed` - confirmed
+    ReservationStatusEnum:
+      enum:
+      - draft
+      - pending
+      - confirmed
+      - checked_in
+      - checked_out
+      - cancelled
+      - no_show
+      type: string
+      description: |-
+        * `draft` - Borrador
+        * `pending` - Pendiente
+        * `confirmed` - Confirmada
+        * `checked_in` - En estadía
+        * `checked_out` - Finalizada
+        * `cancelled` - Cancelada
+        * `no_show` - No se presentó
+    RoleEnum:
+      enum:
+      - owner
+      - manager
+      - staff
+      type: string
+      description: |-
+        * `owner` - Propietario
+        * `manager` - Administrador
+        * `staff` - Colaborador
+    Session:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          title: Correo electrónico
+          maxLength: 254
+        name:
+          type: string
+          readOnly: true
+        is_platform_admin:
+          type: boolean
+        active_tenant:
+          allOf:
+          - $ref: '#/components/schemas/Tenant'
+          nullable: true
+          readOnly: true
+      required:
+      - active_tenant
+      - email
+      - id
+      - name
+    SourceEnum:
+      enum:
+      - direct
+      - phone
+      - whatsapp
+      - other
+      type: string
+      description: |-
+        * `direct` - Directa
+        * `phone` - Teléfono
+        * `whatsapp` - WhatsApp
+        * `other` - Otra
+    Tenant:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 150
+        timezone:
+          type: string
+          maxLength: 64
+        currency:
+          type: string
+          pattern: ^[A-Z]{3}$
+          maxLength: 3
+        role:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - name
+      - role
+    TodayMetrics:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        active_properties:
+          type: integer
+        occupied:
+          type: integer
+        retained:
+          type: integer
+        blocked:
+          type: integer
+        available:
+          type: integer
+        arrivals:
+          type: integer
+        departures:
+          type: integer
+      required:
+      - active_properties
+      - arrivals
+      - available
+      - blocked
+      - date
+      - departures
+      - occupied
+      - retained
+    TransitionRequest:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/ReservationStatusEnum'
+        reason:
+          type: string
+          default: ''
+          maxLength: 1000
+        hold_until:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - status
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

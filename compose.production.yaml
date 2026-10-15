@@ -1,0 +1,122 @@
+# Standalone file: never combine with development Compose.
+name: cabanacontrol-production
+x-app: &app
+  image: cabanacontrol-backend-production:local
+  build:
+    context: ./backend
+    dockerfile: Dockerfile.production
+  environment:
+    DJANGO_SETTINGS_MODULE: config.production
+    DJANGO_DEBUG: 'false'
+    DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?Configura secreto dedicado}
+    DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:?Configura hosts explícitos}
+    FRONTEND_URL: ${FRONTEND_URL:?Configura origen HTTPS}
+    POSTGRES_DB: ${POSTGRES_DB:?Configura base dedicada}
+    POSTGRES_USER: ${POSTGRES_USER:?Configura rol de aplicación}
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Configura contraseña de aplicación}
+    POSTGRES_HOST: db
+    POSTGRES_PORT: '5432'
+    EMAIL_BACKEND: ${EMAIL_BACKEND:-django.core.mail.backends.smtp.EmailBackend}
+    EMAIL_FILE_PATH: ${EMAIL_FILE_PATH:-/tmp/cabanacontrol-emails}
+    EMAIL_HOST: ${EMAIL_HOST:-localhost}
+    EMAIL_PORT: ${EMAIL_PORT:-587}
+    EMAIL_HOST_USER: ${EMAIL_HOST_USER:-}
+    EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD:-}
+    EMAIL_USE_TLS: ${EMAIL_USE_TLS:-true}
+    DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-no-reply@example.invalid}
+    P_REHEARSAL: ${P_REHEARSAL:-false}
+    AI_ENABLED: 'false'
+    AI_TEST_PROVIDER: 'false'
+    WHATSAPP_REAL_ENABLED: 'false'
+    WHATSAPP_TEST_PROVIDER: 'false'
+    E2E_TEST_MODE: 'false'
+    WHATSAPP_WORKER_HEARTBEAT: /tmp/whatsapp-heartbeat
+  volumes:
+    - private_media:/var/lib/cabanacontrol/media
+  networks: [internal]
+  init: true
+  stop_grace_period: 65s
+  security_opt: [no-new-privileges:true]
+  restart: unless-stopped
+services:
+  db:
+    image: cabanacontrol-postgres-production:local
+    build: ./deploy/postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Configura base dedicada}
+      POSTGRES_USER: ${POSTGRES_ADMIN_USER:?Configura administrador separado}
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:?Configura contraseña administrativa}
+      APP_DB_USER: ${POSTGRES_USER:?Configura usuario dedicado}
+      APP_DB_PASSWORD: ${POSTGRES_PASSWORD:?Configura contraseña dedicada}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks: [internal]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+  migrate:
+    <<: *app
+    command: [python, manage.py, migrate, --noinput]
+    restart: 'no'
+    profiles: [tools]
+    depends_on:
+      db:
+        condition: service_healthy
+  backend:
+    <<: *app
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, python, -c, 'import urllib.request; urllib.request.urlopen("http://127.0.0.1:8000/health/", timeout=3)']
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
+  whatsapp-worker:
+    <<: *app
+    command: [python, manage.py, whatsapp_worker]
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, python, -c, 'import time; from pathlib import Path; p=Path("/tmp/whatsapp-heartbeat"); assert p.exists() and time.time()-p.stat().st_mtime<90']
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+  proxy:
+    image: cabanacontrol-frontend-production:local
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.production
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST:?Configura host explícito}
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?Configura origen HTTPS}
+      NGINX_ENVSUBST_FILTER: ^PUBLIC_
+    ports:
+      - '127.0.0.1:${PRODUCTION_HTTP_PORT:-25080}:8080'
+      - '127.0.0.1:${PRODUCTION_HTTPS_PORT:-25443}:8443'
+    volumes:
+      - ${TLS_DIRECTORY:?Configura certificados}:/run/tls:ro
+    networks: [edge, internal]
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD-SHELL, 'wget --no-check-certificate -q -O /dev/null --header="Host: $${PUBLIC_HOST}" https://127.0.0.1:8443/health/']
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+    security_opt: [no-new-privileges:true]
+networks:
+  edge:
+  internal:
+    internal: true
+volumes:
+  postgres_data:
+  private_media:

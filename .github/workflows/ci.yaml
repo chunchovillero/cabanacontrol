@@ -1,0 +1,92 @@
+name: Verificación
+on: [push, pull_request]
+permissions:
+  contents: read
+
+jobs:
+  production-rehearsal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install --require-hashes -r backend/requirements-dev.lock
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: npx playwright install --with-deps chromium
+        working-directory: frontend
+      - run: ruff check backend scripts && ruff format --check backend scripts
+      - run: python scripts/p_ci.py
+      # No artifact upload: local configuration and backup keys must stay private.
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: cabanacontrol
+          POSTGRES_USER: cabanacontrol
+          POSTGRES_PASSWORD: ci-only-postgres-password
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U cabanacontrol"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      DJANGO_SECRET_KEY: ci-only-django-secret-for-ephemeral-tests
+      DJANGO_DEBUG: 'true'
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_DB: cabanacontrol
+      POSTGRES_USER: cabanacontrol
+      POSTGRES_PASSWORD: ci-only-postgres-password
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install --require-hashes -r requirements-dev.lock
+      - run: ruff check . && ruff format --check .
+      - run: python manage.py check && python manage.py makemigrations --check --dry-run
+      - run: pytest
+      - run: python manage.py spectacular --validate --fail-on-warn --file /tmp/schema.yaml
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint && npm run format:check && npm test && npm run build
+      - name: Preparar entorno E2E aislado
+        working-directory: .
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from secrets import token_urlsafe
+          text = Path('.env.example').read_text()
+          text = text.replace('replace-with-a-random-local-secret', token_urlsafe(48))
+          text = text.replace('replace-with-a-random-local-password', token_urlsafe(32))
+          Path('.env').write_text(text)
+          PY
+          docker compose -p cabanacontrol-e2e -f compose.yaml -f compose.e2e.yaml up --build --wait
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - name: Detener pruebas sin borrar volúmenes
+        if: always()
+        working-directory: .
+        run: docker compose -p cabanacontrol-e2e -f compose.yaml -f compose.e2e.yaml stop

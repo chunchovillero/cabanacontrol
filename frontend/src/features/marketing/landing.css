@@ -1,0 +1,36 @@
+.marketing .marketing-heading {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+}
+
+.marketing .marketing-eyebrow {
+  color: #667b54;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.marketing .marketing-preview {
+  min-width: 0;
+  border: 1px solid #d5decf;
+  border-radius: 1.25rem;
+  background: #fffef9;
+  box-shadow:
+    0 26px 65px -30px #25433355,
+    14px 14px 0 #e6eadb;
+}
+
+.marketing :is(a, button, summary):focus-visible {
+  outline: 2px solid #b57c4c;
+  outline-offset: 4px;
+}
+
+.marketing summary::marker {
+  color: #71865f;
+}
+
+@media (max-width: 400px) {
+  .marketing .marketing-preview {
+    box-shadow: 0 16px 35px -25px #25433355;
+  }
+}

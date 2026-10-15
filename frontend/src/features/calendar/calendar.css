@@ -1,0 +1,27 @@
+.cabin-calendar .fc {
+  font-size: 0.875rem;
+}
+.cabin-calendar .calendar-toolbar {
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.cabin-calendar .calendar-title {
+  font-size: 1.25rem;
+}
+.cabin-calendar .calendar-event {
+  cursor: pointer;
+}
+@media (max-width: 639px) {
+  .cabin-calendar .calendar-toolbar {
+    justify-content: center;
+  }
+  .cabin-calendar .calendar-toolbar > * {
+    max-width: 100%;
+  }
+  .cabin-calendar .calendar-title {
+    font-size: 1rem;
+  }
+  .cabin-calendar .fc {
+    font-size: 0.7rem;
+  }
+}
