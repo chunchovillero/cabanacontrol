@@ -66,7 +66,7 @@ class InvitationsView(OwnerView):
         return Response(
             {
                 "invitation": InvitationSerializer(invitation).data,
-                "link": f"{settings.FRONTEND_URL}/invitacion#token={token}",
+                "link": f"{settings.PUBLIC_APP_URL}/invitacion#token={token}",
             },
             status=201,
         )

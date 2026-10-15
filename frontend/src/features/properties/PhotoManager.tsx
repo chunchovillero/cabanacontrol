@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
+import { publicUrl } from '@/lib/api'
 import { propertyApi, type Property, type Photo } from './api'
 import { usePropertyContext } from './PropertyAccess'
 
@@ -87,7 +88,7 @@ export function PhotoManager({ property }: { property: Property }) {
             key={photo.id}
             className="overflow-hidden rounded-xl border border-border bg-white"
           >
-            <img src={photo.url} alt={photo.alt} className="h-48 w-full object-cover" />
+            <img src={publicUrl(photo.url)} alt={photo.alt} className="h-48 w-full object-cover" />
             <figcaption className="p-4 text-sm">
               {photo.alt} · Orden {photo.order}
               {canEdit && (

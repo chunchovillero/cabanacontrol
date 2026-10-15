@@ -130,6 +130,7 @@ CSRF_FAILURE_VIEW = "apps.accounts.views.csrf_failure"
 SECURE_REFERRER_POLICY = "no-referrer"
 X_FRAME_OPTIONS = "DENY"
 FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+PUBLIC_APP_URL = os.environ.get("PUBLIC_APP_URL", FRONTEND_URL).rstrip("/")
 EMAIL_BACKEND = os.environ.get(
     "EMAIL_BACKEND",
     "django.core.mail.backends.filebased.EmailBackend"

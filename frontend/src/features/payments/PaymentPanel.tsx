@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
+import { publicUrl } from '@/lib/api'
 import { useTenantContext } from '@/features/auth/TenantAccess'
 import { formatMoney } from '@/features/properties/api'
 import type { Reservation } from '@/features/reservations/api'
@@ -344,7 +345,7 @@ export function PaymentPanel({ reservation }: { reservation: Reservation }) {
             )}
             {payment.receipt_url && (
               <a
-                href={payment.receipt_url}
+                href={publicUrl(payment.receipt_url)}
                 className="mt-4 inline-block text-sm text-primary underline"
               >
                 Descargar comprobante

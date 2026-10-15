@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { publicUrl } from '@/lib/api'
 import { propertyApi, formatMoney } from './api'
 import { usePropertyContext } from './PropertyAccess'
 
@@ -111,7 +112,7 @@ export function PropertyList() {
           >
             {property.photos[0] ? (
               <img
-                src={property.photos[0].url}
+                src={publicUrl(property.photos[0].url)}
                 alt={property.photos[0].alt}
                 className="h-44 w-full object-cover"
                 loading="lazy"

@@ -8,10 +8,11 @@ import './index.css'
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: false } },
 })
+const routerBase = import.meta.env.BASE_URL === '/' ? undefined : import.meta.env.BASE_URL.replace(/\/$/, '')
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <BrowserRouter basename={routerBase}>
         <App />
       </BrowserRouter>
     </QueryClientProvider>

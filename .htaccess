@@ -1,0 +1,5 @@
+Options -Indexes
+RewriteEngine On
+
+RewriteCond %{HTTP_HOST} ^(?:www\.)?labrawebs\.com$ [NC]
+RewriteRule ^(.*)$ http://127.0.0.1:25173/cabanacontrol/$1 [P,L]

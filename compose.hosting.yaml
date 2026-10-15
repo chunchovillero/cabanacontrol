@@ -1,0 +1,106 @@
+name: cabanacontrol-hosting
+x-app: &app
+  image: cabanacontrol-hosting-backend:local
+  build:
+    context: ./backend
+    dockerfile: Dockerfile.production
+  env_file: .env.hosting
+  environment:
+    DJANGO_SETTINGS_MODULE: config.production
+    DJANGO_DEBUG: 'false'
+    DJANGO_ALLOWED_HOSTS: labrawebs.com
+    FRONTEND_URL: https://labrawebs.com
+    PUBLIC_APP_URL: https://labrawebs.com/cabanacontrol
+    POSTGRES_HOST: db
+    POSTGRES_PORT: '5432'
+    AI_ENABLED: 'false'
+    AI_TEST_PROVIDER: 'false'
+    WHATSAPP_REAL_ENABLED: 'false'
+    WHATSAPP_TEST_PROVIDER: 'false'
+    E2E_TEST_MODE: 'false'
+    WHATSAPP_WORKER_HEARTBEAT: /tmp/whatsapp-heartbeat
+  volumes:
+    - private_media:/var/lib/cabanacontrol/media
+  networks: [internal]
+  init: true
+  restart: unless-stopped
+  security_opt: [no-new-privileges:true]
+
+services:
+  db:
+    image: cabanacontrol-hosting-postgres:local
+    build: ./deploy/postgres
+    env_file: .env.hosting
+    environment:
+      POSTGRES_USER: ${POSTGRES_ADMIN_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD}
+      APP_DB_USER: ${POSTGRES_USER}
+      APP_DB_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data_v2:/var/lib/postgresql/data
+    networks: [internal]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+  migrate:
+    <<: *app
+    command: [python, manage.py, migrate, --noinput]
+    restart: 'no'
+    profiles: [tools]
+    depends_on:
+      db:
+        condition: service_healthy
+  backend:
+    <<: *app
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, python, -c, 'import urllib.request; r=urllib.request.Request("http://127.0.0.1:8000/health/", headers={"Host":"labrawebs.com"}); urllib.request.urlopen(r, timeout=3)']
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
+  whatsapp-worker:
+    <<: *app
+    command: [python, manage.py, whatsapp_worker]
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, python, -c, 'import time; from pathlib import Path; p=Path("/tmp/whatsapp-heartbeat"); assert p.exists() and time.time()-p.stat().st_mtime<90']
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+  proxy:
+    image: cabanacontrol-hosting-frontend:local
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.hosting
+      args:
+        VITE_BASE_PATH: /cabanacontrol/
+    ports:
+      - '127.0.0.1:25173:8080'
+    networks: [internal, edge]
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:8080/cabanacontrol/health/]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    restart: unless-stopped
+    security_opt: [no-new-privileges:true]
+
+networks:
+  edge:
+  internal:
+    internal: true
+volumes:
+  postgres_data_v2:
+  private_media:

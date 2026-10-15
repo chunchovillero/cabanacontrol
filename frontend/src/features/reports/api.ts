@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ApiError, request } from '@/lib/api'
+import { ApiError, publicUrl, request } from '@/lib/api'
 import { dashboardSchema } from '@/features/dashboard/api'
 
 export type ReportKind = 'summary' | 'reservations' | 'payments'
@@ -72,7 +72,7 @@ export const reportApi = {
   async download(tenant: string, filters: ReportFilters, signal: AbortSignal) {
     let response: Response
     try {
-      response = await fetch(`/api/v1/reports/export/?${params(filters)}`, {
+      response = await fetch(publicUrl(`/api/v1/reports/export/?${params(filters)}`), {
         credentials: 'same-origin',
         headers: { 'X-Tenant-Context': tenant },
         signal: AbortSignal.any([signal, AbortSignal.timeout(30000)]),

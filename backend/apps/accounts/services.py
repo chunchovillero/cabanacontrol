@@ -45,7 +45,7 @@ def request_password_reset(email: str):
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = default_token_generator.make_token(user)
     fragment = urlencode({"uid": uid, "token": token})
-    link = f"{settings.FRONTEND_URL}/restablecer#{fragment}"
+    link = f"{settings.PUBLIC_APP_URL}/restablecer#{fragment}"
     try:
         send_mail(
             "Restablece tu contraseña de CabañaControl",

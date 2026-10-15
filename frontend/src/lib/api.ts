@@ -17,6 +17,11 @@ export const sessionSchema = z.object({
 export type Tenant = z.infer<typeof tenantSchema>
 export type Session = z.infer<typeof sessionSchema>
 
+export function publicUrl(path: string): string {
+  if (!path.startsWith('/') || import.meta.env.BASE_URL === '/') return path
+  return `${import.meta.env.BASE_URL.replace(/\/$/, '')}${path}`
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -51,7 +56,7 @@ export async function request(
 ): Promise<unknown> {
   let response: Response
   try {
-    response = await fetch(path, {
+    response = await fetch(publicUrl(path), {
       ...options,
       credentials: 'same-origin',
       signal: options.signal
