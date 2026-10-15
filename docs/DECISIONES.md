@@ -732,3 +732,6 @@ emisor, vencimiento y correo verificado. El token no se almacena. Un correo exis
 puede iniciar sesión; uno nuevo debe indicar empresa y crea usuario sin contraseña,
 empresa CLP/Santiago y membresía owner atómicamente. El registro local con contraseña
 sigue desactivado en producción. Sesión Django, CSRF y límites por IP se conservan.
+El backend productivo conserva su red sin salida general. El proxy, ya conectado a
+edge, retransmite únicamente el documento JWKS público de Google por una ruta interna
+restringida al rango Docker; PostgreSQL permanece exclusivamente en la red interna.

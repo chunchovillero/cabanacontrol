@@ -11,7 +11,6 @@ from cryptography.hazmat.primitives.hashes import SHA256
 from django.conf import settings
 from rest_framework.exceptions import AuthenticationFailed
 
-GOOGLE_CERTS_URL = "https://www.googleapis.com/oauth2/v3/certs"
 GOOGLE_ISSUERS = {"accounts.google.com", "https://accounts.google.com"}
 _cache: tuple[float, dict] | None = None
 _cache_lock = Lock()
@@ -46,7 +45,7 @@ def _keys() -> dict:
         if _cache and _cache[0] > now:
             return _cache[1]
         try:
-            response = httpx.get(GOOGLE_CERTS_URL, timeout=5, follow_redirects=False)
+            response = httpx.get(settings.GOOGLE_OAUTH_CERTS_URL, timeout=5, follow_redirects=False)
             response.raise_for_status()
             body = response.json()
             keys = {item["kid"]: item for item in body["keys"] if item.get("kty") == "RSA"}

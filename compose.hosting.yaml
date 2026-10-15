@@ -12,6 +12,7 @@ x-app: &app
     FRONTEND_URL: https://labrawebs.com
     PUBLIC_APP_URL: https://labrawebs.com/cabanacontrol
     GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID:-}
+    GOOGLE_OAUTH_CERTS_URL: http://proxy:8080/internal/google-certs
     POSTGRES_HOST: db
     POSTGRES_PORT: '5432'
     AI_ENABLED: 'false'

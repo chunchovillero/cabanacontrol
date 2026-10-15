@@ -1398,3 +1398,8 @@ frontend, backend, base, worker y proxy saludables; opciones públicas confirman
 habilitado. Verificaciones: 71 pruebas backend de Google/identidad/seguridad, 13 pruebas
 frontend, Ruff, ESLint y build productivo aprobados. El último paso manual es completar
 un ingreso real en el selector de Google, que requiere interacción del propietario.
+
+Primera prueba real mostró indisponibilidad al descargar claves públicas: la red
+interna bloqueaba DNS/salida. Se mantuvo el aislamiento y se agregó al proxy edge una
+ruta interna restringida que retransmite solo el JWKS de Google. Pendiente repetir
+el clic real después del redespliegue.
