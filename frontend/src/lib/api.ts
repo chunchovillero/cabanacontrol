@@ -16,6 +16,10 @@ export const sessionSchema = z.object({
 })
 export type Tenant = z.infer<typeof tenantSchema>
 export type Session = z.infer<typeof sessionSchema>
+const googleRegistrationSchema = z.object({
+  requires_company: z.literal(true),
+  profile: z.object({ email: z.string().email(), name: z.string() }),
+})
 
 export function publicUrl(path: string): string {
   if (!path.startsWith('/') || import.meta.env.BASE_URL === '/') return path
@@ -102,6 +106,17 @@ export async function write(
 const post = write
 
 export const api = {
+  async registrationOptions() {
+    return request('/api/v1/auth/register/')
+  },
+  async googleAuth(credential: string, companyName?: string) {
+    const result = await post('/api/v1/auth/google/', {
+      credential,
+      ...(companyName ? { company_name: companyName } : {}),
+    })
+    const pending = googleRegistrationSchema.safeParse(result)
+    return pending.success ? pending.data : sessionSchema.parse(result)
+  },
   async me(): Promise<Session | null> {
     try {
       return sessionSchema.parse(await request('/api/v1/auth/me/'))

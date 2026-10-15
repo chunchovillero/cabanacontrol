@@ -20,6 +20,7 @@ values = {
     "EMAIL_HOST_USER": "",
     "EMAIL_HOST_PASSWORD": "",
     "DEFAULT_FROM_EMAIL": "no-reply@labrawebs.com",
+    "GOOGLE_OAUTH_CLIENT_ID": "",
     "WHATSAPP_ENCRYPTION_KEYS": "{}",
     "WHATSAPP_ACTIVE_KEY_VERSION": "v1",
 }

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from apps.accounts.onboarding import RegistrationView
+from apps.accounts.onboarding import GoogleAuthView, RegistrationView
 from apps.accounts.profile import ProfileView
 from apps.accounts.views import (
     CsrfView,
@@ -14,6 +14,7 @@ from apps.accounts.views import (
 urlpatterns = [
     path("profile/", ProfileView.as_view(), name="auth-profile"),
     path("register/", RegistrationView.as_view(), name="auth-register"),
+    path("google/", GoogleAuthView.as_view(), name="auth-google"),
     path("csrf/", CsrfView.as_view(), name="auth-csrf"),
     path("login/", LoginView.as_view(), name="auth-login"),
     path("logout/", LogoutView.as_view(), name="auth-logout"),

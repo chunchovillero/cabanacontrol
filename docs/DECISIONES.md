@@ -722,3 +722,13 @@ con intento previo conservado. Sin cobros retroactivos si ya pasó otro periodo.
 
 Se deja demo aislada disponible al cierre, con credenciales ficticias documentadas
 en SIMULACION_COMERCIAL.md. 11D.3 y puerta P para piloto real siguen pendientes.
+
+## Registro e inicio de sesión con Google (15-10-2026)
+
+Autorizado expresamente por el propietario. Se usa Google Identity Services con
+cliente web y respuesta JavaScript, sin client secret ni URI de redirección. Django
+valida el ID token contra claves públicas oficiales y exige firma RS256, audiencia,
+emisor, vencimiento y correo verificado. El token no se almacena. Un correo existente
+puede iniciar sesión; uno nuevo debe indicar empresa y crea usuario sin contraseña,
+empresa CLP/Santiago y membresía owner atómicamente. El registro local con contraseña
+sigue desactivado en producción. Sesión Django, CSRF y límites por IP se conservan.

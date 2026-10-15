@@ -150,6 +150,7 @@ DEFAULT_FROM_EMAIL = os.environ.get(
 LOGIN_ACCOUNT_LIMIT = 5
 BILLING_SIMULATION_ENABLED = os.environ.get("BILLING_SIMULATION_ENABLED", "false").lower() == "true"
 LOCAL_ONBOARDING_ENABLED = os.environ.get("LOCAL_ONBOARDING_ENABLED", "true").lower() == "true"
+GOOGLE_OAUTH_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID", "").strip()
 LOGIN_IP_LIMIT = 30
 AUTH_THROTTLE_SECONDS = 600
 AI_ENABLED = os.environ.get("AI_ENABLED", "false").lower() == "true"

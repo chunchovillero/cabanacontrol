@@ -20,6 +20,7 @@ con las cookies del mismo origen. El token rota al iniciar sesión; pedir uno nu
 | --- | --- | --- |
 | GET | /api/v1/auth/csrf/ | Público; csrf_token enmascarado |
 | POST | /api/v1/auth/login/ | CSRF obligatorio; email y password; usuario y contexto |
+| POST | /api/v1/auth/google/ | CSRF; credencial GIS y company_name solo para alta nueva |
 | POST | /api/v1/auth/logout/ | Sesión + CSRF; 204 |
 | GET | /api/v1/auth/me/ | Sesión; id, email, name, is_platform_admin, active_tenant |
 | POST | /api/v1/auth/password-reset/ | CSRF; email; respuesta genérica 200 |
@@ -428,7 +429,7 @@ pendientes de reactivación; no altera el User global ni accesos a otras empresa
 
 ## Alta inicial local (11B)
 
-`GET /api/v1/auth/register/`: `{enabled: boolean}`. `POST` con CSRF: email,
+`GET /api/v1/auth/register/`: `{enabled, google_enabled, google_client_id}`. `POST` con CSRF: email,
 first_name, last_name opcional (admite vacío), company_name y password. Responde
 201 con detail, sin sesión automática. Crea usuario normal, empresa CLP/Santiago,
 membresía owner y auditoría atómicamente. Campos adicionales/datos inválidos/correo
@@ -436,6 +437,14 @@ existente: 400; sesión ya autenticada o registro deshabilitado: 403. Cinco inte
 por IP/diez minutos: 429 con Retry-After. Solo DEBUG y LOCAL_ONBOARDING_ENABLED;
 producción fuerza false. Sin verificación de correo en esta entrega local.
 Véase [alcance](ALTA_PROPIETARIO_WEB.md).
+
+Google Identity Services queda disponible cuando `GOOGLE_OAUTH_CLIENT_ID` está
+configurado. `POST /api/v1/auth/google/` recibe `credential`; Django valida firma
+RS256 con las claves públicas de Google, audiencia, emisor, vencimiento y correo
+verificado. Una cuenta existente inicia sesión por correo. Para una cuenta nueva,
+la primera respuesta solicita `company_name`; el segundo POST crea usuario sin
+contraseña utilizable, empresa CLP/Santiago y membresía owner, y abre la sesión.
+Los ID tokens no se persisten ni se incluyen en auditoría.
 
 ## Perfil y empresa (11C)
 

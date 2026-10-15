@@ -1,19 +1,18 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link, Navigate } from 'react-router-dom'
-import { z } from 'zod'
-import { request, write } from '@/lib/api'
+import { write } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { AuthCard } from './AuthPages'
 import { useAuth } from './AuthProvider'
+import { GoogleSignIn, registrationOptions } from './GoogleSignIn'
 
 export function RegistrationLink() {
   const options = useQuery({
     queryKey: ['registration-options'],
-    queryFn: async () =>
-      z.object({ enabled: z.boolean() }).parse(await request('/api/v1/auth/register/')),
+    queryFn: registrationOptions,
   })
-  return options.data?.enabled ? (
+  return options.data && (options.data.enabled || options.data.google_enabled) ? (
     <Link className="mt-5 block text-sm text-primary underline" to="/registrarse">
       Crear cuenta y empresa
     </Link>
@@ -27,8 +26,7 @@ export function RegisterPage() {
   const [error, setError] = useState('')
   const options = useQuery({
     queryKey: ['registration-options'],
-    queryFn: async () =>
-      z.object({ enabled: z.boolean() }).parse(await request('/api/v1/auth/register/')),
+    queryFn: registrationOptions,
   })
   if (session) return <Navigate to="/" replace />
   return (
@@ -44,11 +42,11 @@ export function RegisterPage() {
           No pudimos consultar el registro.{' '}
           <Button onClick={() => void options.refetch()}>Reintentar</Button>
         </p>
-      ) : !options.data.enabled ? (
+      ) : !options.data.enabled && !options.data.google_enabled ? (
         <p role="status" className="mt-5">
           El alta web no está disponible en este entorno.
         </p>
-      ) : (
+      ) : options.data.enabled ? (
         <>
           <p className="mt-3 text-muted-foreground">
             Alta local de prueba. Serás propietario de la empresa, con moneda CLP y zona horaria de
@@ -130,6 +128,11 @@ export function RegisterPage() {
               </Button>
             </fieldset>
           </form>
+        </>
+      ) : (
+        <>
+          <p className="mt-3 text-muted-foreground">Usa tu cuenta de Google para registrarte.</p>
+          <GoogleSignIn options={options.data} />
         </>
       )}
       <Link to="/ingresar" className="mt-5 inline-block text-sm text-primary underline">

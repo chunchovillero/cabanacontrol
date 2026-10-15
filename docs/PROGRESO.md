@@ -1385,3 +1385,16 @@ documentadas en [SIMULACION_COMERCIAL.md](SIMULACION_COMERCIAL.md). Cada reinici
 del backend E2E agrega un caso ficticio nuevo sin borrar contratos previos.
 No se eliminaron datos/archivos ni se activaron proveedores reales. 11D.3, adaptación
 real a Mercado Pago, producción/piloto y verificación de correo siguen pendientes.
+
+## Acceso con Google — implementación autorizada (15-10-2026)
+
+Integrados registro e inicio de sesión con Google Identity Services para el cliente
+web de labrawebs.com. Backend verifica firma y claims, reutiliza cuentas por correo
+verificado y exige nombre de empresa para altas nuevas. Las nuevas cuentas no tienen
+contraseña utilizable; tokens de Google no se persisten. Interfaz bajo el subdirectorio
+`/cabanacontrol/`, configuración por entorno, CSRF, throttling y auditoría incluidos.
+Sin migraciones ni client secret. Desplegado en `https://labrawebs.com/cabanacontrol/`:
+frontend, backend, base, worker y proxy saludables; opciones públicas confirman Google
+habilitado. Verificaciones: 71 pruebas backend de Google/identidad/seguridad, 13 pruebas
+frontend, Ruff, ESLint y build productivo aprobados. El último paso manual es completar
+un ingreso real en el selector de Google, que requiere interacción del propietario.

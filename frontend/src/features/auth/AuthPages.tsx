@@ -3,11 +3,12 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
 import { useAuth } from './AuthProvider'
 import { RegistrationLink } from './RegisterPage'
+import { GoogleSignIn, registrationOptions } from './GoogleSignIn'
 
 const loginSchema = z.object({
   email: z.email('Ingresa un correo válido.'),
@@ -49,6 +50,7 @@ export function LoginPage() {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const [error, setError] = useState('')
+  const options = useQuery({ queryKey: ['registration-options'], queryFn: registrationOptions })
   const {
     register,
     handleSubmit,
@@ -75,6 +77,10 @@ export function LoginPage() {
     <AuthCard title="Bienvenido a CabañaControl">
       <p className="mt-3 text-muted-foreground">Ingresa para acceder a tus empresas.</p>
       <RegistrationLink />
+      {options.data?.google_enabled && <GoogleSignIn options={options.data} />}
+      {options.data?.google_enabled && (
+        <p className="my-5 text-center text-sm text-muted-foreground">o usa tu contraseña</p>
+      )}
       <form
         onSubmit={(event) => {
           void submit(event)
