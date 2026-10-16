@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { api, type Session } from '@/lib/api'
 import { useAuth } from './AuthProvider'
@@ -12,6 +12,7 @@ const roleLabel = {
 }
 
 export function CompanyPage() {
+  const navigate = useNavigate()
   const { session } = useAuth()
   const queryClient = useQueryClient()
   const [pending, setPending] = useState<string | null>(null)
@@ -35,6 +36,7 @@ export function CompanyPage() {
         ...session,
         active_tenant: selected,
       })
+      navigate('/cabanas')
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : 'No se pudo seleccionar la empresa.')
       void queryClient.invalidateQueries({ queryKey: ['session'] })

@@ -1419,3 +1419,16 @@ a 1024 px se fija al pie con acceso Más; el contenido reserva espacio inferior 
 respeta el área segura del dispositivo. Opciones adicionales agrupadas en Alojamiento,
 Atención y Cuenta, conservando las opciones según rol. Escritorio usa navegación
 compacta y menú adicional. ESLint y las 11 pruebas de identidad aprobados.
+
+## Recorrido empresa → cabañas → reservas e ingresos
+
+Inicio tras login y selección manual de empresa en `/cabanas`. Tarjetas en dos
+columnas móviles; acceso Cabañas en barra inferior. Ficha ampliada con ingresos y
+ocupación por fechas, próximas reservas/estadías e historial paginado de esa cabaña.
+Crear reserva transmite `property_id` y carga el objeto autorizado aunque esté fuera
+de la primera página del selector. Backend agrega filtro `scope=upcoming|history`.
+Sin migraciones. Ganancia neta pendiente de una futura función de gastos.
+Verificación: 35 pruebas backend de reservas y 40 frontend entre identidad, cabañas,
+reservas y ficha operativa aprobadas; Ruff, ESLint y compilación productiva aprobados.
+Una prueba de fotos se ajustó para buscar su mensaje específico tras incorporar
+errores independientes de las nuevas secciones. Sin migraciones pendientes.

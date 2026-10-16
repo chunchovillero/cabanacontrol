@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { propertyApi, formatMoney } from './api'
 import { usePropertyContext } from './PropertyAccess'
 import { PhotoManager } from './PhotoManager'
+import { PropertyOverview } from './PropertyOverview'
 
 export function PropertyDetail() {
   const { tenant, canEdit } = usePropertyContext()
@@ -99,7 +100,14 @@ export function PropertyDetail() {
           {error}
         </p>
       )}
-      <dl className="mt-8 grid gap-6 rounded-xl border border-border bg-white p-6 sm:grid-cols-3">
+      <PropertyOverview
+        tenantId={tenant.id}
+        propertyId={id}
+        timezone={tenant.timezone}
+        active={property.active}
+      />
+      <h2 className="mt-10 text-xl font-semibold">Información de la cabaña</h2>
+      <dl className="mt-4 grid gap-6 rounded-xl border border-border bg-white p-6 sm:grid-cols-3">
         <div>
           <dt className="text-sm text-muted-foreground">Capacidad máxima</dt>
           <dd className="mt-2 text-xl font-semibold">{property.capacity} personas</dd>

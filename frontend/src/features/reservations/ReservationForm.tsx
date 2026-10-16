@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -18,7 +18,14 @@ export const inputClass =
   'mt-2 w-full rounded-lg border border-border bg-white px-3 py-3 focus-visible:outline-2 focus-visible:outline-primary'
 
 export function ReservationEditor({ item, inquiry }: { item?: Reservation; inquiry?: Inquiry }) {
+  const [searchParams] = useSearchParams()
+  const initialProperty = item?.property_id ?? searchParams.get('property_id') ?? ''
   const { tenant } = useTenantContext()
+  const initialPropertyQuery = useQuery({
+    queryKey: ['property', tenant.id, initialProperty],
+    queryFn: () => propertyApi.get(tenant.id, initialProperty),
+    enabled: !!initialProperty && !item,
+  })
   const navigate = useNavigate()
   const client = useQueryClient()
   const [error, setError] = useState('')
@@ -43,7 +50,7 @@ export function ReservationEditor({ item, inquiry }: { item?: Reservation; inqui
   } = useForm<Values>({
     resolver: zodResolver(reservationFormSchema),
     defaultValues: {
-      property_id: item?.property_id ?? '',
+      property_id: initialProperty,
       primary_guest_id: item?.primary_guest_id ?? '',
       check_in: item?.check_in ?? '',
       check_out: item?.check_out ?? '',
@@ -157,6 +164,11 @@ export function ReservationEditor({ item, inquiry }: { item?: Reservation; inqui
           </label>
           <select id="reservation-property" className={inputClass} {...register('property_id')}>
             <option value="">Seleccionar cabaña</option>
+            {!item &&
+              initialPropertyQuery.data &&
+              !props.data?.results.some((p) => p.id === initialProperty) && (
+                <option value={initialProperty}>{initialPropertyQuery.data.name}</option>
+              )}
             {item && !props.data?.results.some((p) => p.id === item.property_id) && (
               <option value={item.property_id}>{item.property_name}</option>
             )}

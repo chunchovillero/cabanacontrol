@@ -67,7 +67,7 @@ describe('Identidad', () => {
     await userEvent.type(screen.getByLabelText('Contraseña'), 'Test-strong-passphrase-2026')
     await userEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }))
     await waitFor(() => expect(select).toHaveBeenCalledWith(tenant.id))
-    expect(await screen.findByRole('heading', { name: 'Panel administrativo' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Cabañas' })).toBeInTheDocument()
   })
 
   it('mantiene el selector cuando tiene varias empresas', async () => {
@@ -113,7 +113,7 @@ describe('Identidad', () => {
         name: 'Seleccionar Empresa de prueba',
       }),
     )
-    await screen.findByRole('region', { name: 'Empresa activa' })
+    await screen.findByRole('heading', { name: 'Cabañas' })
     expect(client.getQueryData(['private-company-data', 'previous'])).toBeUndefined()
   })
 

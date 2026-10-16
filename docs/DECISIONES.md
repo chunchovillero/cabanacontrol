@@ -742,3 +742,14 @@ Después de cualquier login, si la cuenta tiene exactamente una membresía activ
 frontend la selecciona mediante el endpoint normal y entra al panel administrativo.
 Con dos o más empresas conserva el selector; sin empresas conserva el aviso existente.
 No se confía en IDs locales ni se altera el flujo para cambiar empresa posteriormente.
+
+## Inicio y ficha operativa por cabaña
+
+Solicitud del propietario: al entrar a una empresa se abre Cabañas, con dos columnas
+en móvil. La ficha integra creación de reserva con cabaña preseleccionada, reservas
+próximas/en curso e historial paginado. Próximas incluye salida posterior a hoy local
+salvo finalizadas, canceladas o ausencias; historial contiene el resto, incluidas
+cancelaciones futuras. Se usan filtros en servidor y aislamiento de empresa existente.
+Ingresos por periodo reutiliza indicadores del backend: cobrado por fecha de pago,
+pactado/saldos por fecha de entrada y ocupación. No se presenta ganancia neta porque
+el sistema no registra gastos. No se incorporan cálculos monetarios en el navegador.

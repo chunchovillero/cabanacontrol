@@ -40,6 +40,20 @@ WRITE_CONTEXT = OpenApiParameter(
 
 class ReservationFilter(filters.FilterSet):
     debt = filters.BooleanFilter(method="filter_debt")
+    scope = filters.ChoiceFilter(
+        choices=[("upcoming", "Próximas"), ("history", "Historial")], method="filter_scope"
+    )
+
+    def filter_scope(self, queryset, name, value):
+        tenant = getattr(self.request, "tenant", None)
+        if tenant is None:
+            return queryset.none()
+        current = Q(check_out__gt=local_today(tenant)) & ~Q(
+            status__in=["cancelled", "no_show", "checked_out"]
+        )
+        if value == "upcoming":
+            return queryset.filter(current).order_by("check_in", "id")
+        return queryset.exclude(current).order_by("-check_in", "id")
 
     def filter_debt(self, queryset, name, value):
         debt = Q(status__in=CHARGEABLE_STATES, balance__gt=0)

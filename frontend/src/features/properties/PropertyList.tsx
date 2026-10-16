@@ -104,7 +104,7 @@ export function PropertyList() {
           </p>
         </div>
       )}
-      <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
         {query.data?.results.map((property) => (
           <article
             key={property.id}
@@ -114,7 +114,7 @@ export function PropertyList() {
               <img
                 src={publicUrl(property.photos[0].url)}
                 alt={property.photos[0].alt}
-                className="h-44 w-full object-cover"
+                className="h-28 w-full object-cover sm:h-44"
                 loading="lazy"
               />
             ) : (
@@ -122,14 +122,14 @@ export function PropertyList() {
                 Sin fotografías
               </div>
             )}
-            <div className="p-5">
+            <div className="min-w-0 p-3 sm:p-5">
               <div className="flex justify-between gap-3">
                 <span className="text-xs font-semibold text-muted-foreground">{property.code}</span>
                 <span className="rounded-full bg-muted px-2 py-1 text-xs">
                   {property.active ? 'Activa' : 'Inactiva'}
                 </span>
               </div>
-              <h2 className="mt-3 text-xl font-semibold">
+              <h2 className="mt-3 break-words text-base font-semibold sm:text-xl">
                 <Link to={`/cabanas/${property.id}`} className="hover:underline">
                   {property.name}
                 </Link>

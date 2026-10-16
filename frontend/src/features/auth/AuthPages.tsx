@@ -59,7 +59,7 @@ export function LoginPage() {
   } = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
   })
-  if (session) return <Navigate to={session.active_tenant ? '/panel' : '/'} replace />
+  if (session) return <Navigate to={session.active_tenant ? '/cabanas' : '/'} replace />
   const submit = handleSubmit(async (values) => {
     setError('')
     try {

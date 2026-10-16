@@ -3,7 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import type { Session } from '@/lib/api'
 
 const mainLinks = [
-  { to: '/panel', label: 'Panel', icon: '▦' },
+  { to: '/cabanas', label: 'Cabañas', icon: '⌂' },
   { to: '/reservas', label: 'Reservas', icon: '▤' },
   { to: '/calendario', label: 'Calendario', icon: '▦' },
   { to: '/operacion', label: 'Operación', icon: '✓' },
@@ -27,7 +27,7 @@ export function AppNavigation({
           {
             title: 'Alojamiento',
             links: [
-              ['/cabanas', 'Cabañas'],
+              ['/panel', 'Panel general'],
               ['/huespedes', 'Huéspedes'],
               ['/reportes', 'Reportes'],
             ],

@@ -146,7 +146,7 @@ describe('Cabañas', () => {
       'Archivo de prueba',
     )
     await userEvent.click(screen.getByRole('button', { name: 'Subir foto' }))
-    expect(await screen.findByRole('alert')).toHaveTextContent('Selecciona una imagen')
+    expect(await screen.findByText(/Selecciona una imagen JPG/)).toBeInTheDocument()
     expect(upload).not.toHaveBeenCalled()
   })
 

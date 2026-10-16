@@ -12,6 +12,11 @@ En Fase 0 no había endpoints de negocio, login, admin ni schema de dominio.
 
 ## Identidad y multiempresa — Fase 1
 
+El listado de reservas acepta `property_id` y `scope=upcoming|history`, combinables
+con paginación. Upcoming: salida posterior a hoy de la empresa y estado distinto de
+finalizada, cancelada o ausencia; orden por entrada ascendente. History: complemento,
+orden por entrada descendente. Ambos mantienen aislamiento y permisos de empresa.
+
 Todas las rutas llevan barra final. Autenticación por cookie de sesión. Antes de
 cualquier POST, obtener `/api/v1/auth/csrf/` y enviar csrf_token como X-CSRFToken,
 con las cookies del mismo origen. El token rota al iniciar sesión; pedir uno nuevo.

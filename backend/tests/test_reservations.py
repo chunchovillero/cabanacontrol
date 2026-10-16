@@ -372,6 +372,27 @@ def test_availability_and_api_filters(csrf_client, identities, setup):
     assert csrf_client.get("/api/v1/availability/", {**params, "page": 1}).status_code == 200
 
 
+def test_property_upcoming_and_history_are_disjoint(csrf_client, identities, setup):
+    _, _, data = setup
+    upcoming = save(identities, data)
+    cancelled = save(identities, data)
+    move(identities, cancelled, "cancelled", reason="Cambio ficticio")
+    expired = save(identities, data)
+    today = local_today(identities["tenant_a"])
+    Reservation.objects.filter(pk=expired.pk).update(
+        check_in=today - timedelta(days=3), check_out=today
+    )
+    enter(csrf_client, identities)
+    params = {"property_id": str(data["property_id"])}
+    future = csrf_client.get("/api/v1/reservations/", {**params, "scope": "upcoming"})
+    history = csrf_client.get("/api/v1/reservations/", {**params, "scope": "history"})
+    assert future.status_code == history.status_code == 200
+    assert {row["id"] for row in future.json()["results"]} == {str(upcoming.pk)}
+    assert {row["id"] for row in history.json()["results"]} == {
+        str(cancelled.pk), str(expired.pk)
+    }
+
+
 def test_inactive_objects_and_revoked_membership(identities, setup):
     props, guests, data = setup
     props["a"].active = False
