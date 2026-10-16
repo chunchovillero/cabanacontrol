@@ -5,8 +5,14 @@
   flex-wrap: wrap;
   gap: 0.75rem;
 }
+.cabin-calendar .calendar-toolbar > :has(.calendar-title) {
+  order: 3;
+  flex: 0 0 100%;
+  text-align: center;
+}
 .cabin-calendar .calendar-title {
   font-size: 1.25rem;
+  white-space: nowrap;
 }
 .cabin-calendar .calendar-event {
   cursor: pointer;

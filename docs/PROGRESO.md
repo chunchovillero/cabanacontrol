@@ -1448,3 +1448,7 @@ búsqueda remota y selección, en lugar de input más select separados. Opciones
 paginación dentro del desplegable, selección retenida al buscar, carga inicial de
 cabaña conservada y navegación de teclado. 20 pruebas de reservas aprobadas.
 Flujos E2E adaptados a los nuevos campos; no se ejecutó navegador en esta entrega.
+
+Encabezado de todos los calendarios: título completo (mes y año o rango semanal)
+siempre centrado en la segunda fila, debajo de los controles, en móvil y escritorio.
+El título no admite salto interno y mantiene su ubicación al cambiar de mes.
