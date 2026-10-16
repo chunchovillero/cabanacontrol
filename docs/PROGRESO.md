@@ -1432,3 +1432,8 @@ Verificación: 35 pruebas backend de reservas y 40 frontend entre identidad, cab
 reservas y ficha operativa aprobadas; Ruff, ESLint y compilación productiva aprobados.
 Una prueba de fotos se ajustó para buscar su mensaje específico tras incorporar
 errores independientes de las nuevas secciones. Sin migraciones pendientes.
+
+Calendario individual incorporado a la ficha de cada cabaña: vista mensual/semanal,
+navegación por fechas y eventos enlazados a reservas/bloqueos. Reutiliza calendario
+existente con property_id fijo y oculta el selector global de cabañas. Carga diferida
+para no cargar FullCalendar en el listado. Conserva fechas exclusivas y estilos móviles.

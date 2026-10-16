@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
@@ -6,6 +6,9 @@ import { propertyApi, formatMoney } from './api'
 import { usePropertyContext } from './PropertyAccess'
 import { PhotoManager } from './PhotoManager'
 import { PropertyOverview } from './PropertyOverview'
+const PropertyCalendar = lazy(() =>
+  import('@/features/calendar/CalendarPage').then((module) => ({ default: module.CalendarPage })),
+)
 
 export function PropertyDetail() {
   const { tenant, canEdit } = usePropertyContext()
@@ -100,6 +103,11 @@ export function PropertyDetail() {
           {error}
         </p>
       )}
+      <div className="mt-8 min-w-0">
+        <Suspense fallback={<p role="status">Cargando calendario…</p>}>
+          <PropertyCalendar key={id} propertyId={id} />
+        </Suspense>
+      </div>
       <PropertyOverview
         tenantId={tenant.id}
         propertyId={id}

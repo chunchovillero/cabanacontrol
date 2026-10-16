@@ -43,12 +43,12 @@ export function calendarInput(event: CalendarEvent): EventInput {
   }
 }
 
-export function CalendarPage() {
+export function CalendarPage({ propertyId }: { propertyId?: string } = {}) {
   const { tenant } = useTenantContext()
   const navigate = useNavigate()
   const today = todayInZone(tenant.timezone)
   const [period, setPeriod] = useState(() => monthPeriod(today))
-  const [property, setProperty] = useState('')
+  const [property, setProperty] = useState(propertyId ?? '')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState<{ id: string; name: string; active: boolean } | null>(
@@ -58,6 +58,7 @@ export function CalendarPage() {
   const properties = useQuery({
     queryKey: ['properties', tenant.id, search, page, 'all'],
     queryFn: () => propertyApi.list(tenant.id, search, 'all', page),
+    enabled: !propertyId,
   })
   const result = useQuery({
     queryKey: ['calendar', tenant.id, period, property],
@@ -89,89 +90,97 @@ export function CalendarPage() {
   )
   return (
     <section>
-      <p className="text-sm text-muted-foreground">{tenant.name}</p>
+      {!propertyId && <p className="text-sm text-muted-foreground">{tenant.name}</p>}
       <div className="mt-2 flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold">Calendario de reservas</h1>
-        <Button asChild variant="outline">
-          <Link to="/panel">Ver panel</Link>
-        </Button>
+        {propertyId ? (
+          <h2 className="text-xl font-semibold">Calendario de esta cabaña</h2>
+        ) : (
+          <h1 className="text-3xl font-bold">Calendario de reservas</h1>
+        )}
+        {!propertyId && (
+          <Button asChild variant="outline">
+            <Link to="/panel">Ver panel</Link>
+          </Button>
+        )}
       </div>
       <p className="mt-3 text-sm text-muted-foreground">
         Estadías por noche: la fecha de salida queda libre. Hora de la empresa: {tenant.timezone}.
         Incluye historial de cabañas inactivas.
       </p>
-      <div className="mt-6 grid gap-4 rounded-xl border border-border bg-white p-4 sm:grid-cols-2">
-        <label>
-          Buscar cabaña
-          <input
-            className="mt-2 w-full rounded-lg border p-3"
-            maxLength={150}
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value)
-              setPage(1)
-            }}
-          />
-        </label>
-        <label>
-          Cabaña
-          <select
-            aria-label="Cabaña"
-            className="mt-2 w-full rounded-lg border bg-white p-3"
-            value={property}
-            onChange={(e) => {
-              setProperty(e.target.value)
-              setSelected(
-                properties.data?.results.find((item) => item.id === e.target.value) ?? null,
-              )
-            }}
-          >
-            <option value="">Todas las cabañas</option>
-            {selected && !properties.data?.results.some((item) => item.id === selected.id) && (
-              <option value={selected.id}>
-                {selected.name}
-                {selected.active ? '' : ' · Inactiva'}
-              </option>
-            )}
-            {properties.data?.results.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name}
-                {item.active ? '' : ' · Inactiva'}
-              </option>
-            ))}
-          </select>
-        </label>
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            disabled={!properties.data?.previous}
-            onClick={() => setPage(page - 1)}
-          >
-            Cabañas anteriores
-          </Button>
-          <Button
-            variant="outline"
-            disabled={!properties.data?.next}
-            onClick={() => setPage(page + 1)}
-          >
-            Más cabañas
-          </Button>
+      {!propertyId && (
+        <div className="mt-6 grid gap-4 rounded-xl border border-border bg-white p-4 sm:grid-cols-2">
+          <label>
+            Buscar cabaña
+            <input
+              className="mt-2 w-full rounded-lg border p-3"
+              maxLength={150}
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value)
+                setPage(1)
+              }}
+            />
+          </label>
+          <label>
+            Cabaña
+            <select
+              aria-label="Cabaña"
+              className="mt-2 w-full rounded-lg border bg-white p-3"
+              value={property}
+              onChange={(e) => {
+                setProperty(e.target.value)
+                setSelected(
+                  properties.data?.results.find((item) => item.id === e.target.value) ?? null,
+                )
+              }}
+            >
+              <option value="">Todas las cabañas</option>
+              {selected && !properties.data?.results.some((item) => item.id === selected.id) && (
+                <option value={selected.id}>
+                  {selected.name}
+                  {selected.active ? '' : ' · Inactiva'}
+                </option>
+              )}
+              {properties.data?.results.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                  {item.active ? '' : ' · Inactiva'}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              disabled={!properties.data?.previous}
+              onClick={() => setPage(page - 1)}
+            >
+              Cabañas anteriores
+            </Button>
+            <Button
+              variant="outline"
+              disabled={!properties.data?.next}
+              onClick={() => setPage(page + 1)}
+            >
+              Más cabañas
+            </Button>
+          </div>
+          <label>
+            Mostrar
+            <select
+              aria-label="Mostrar"
+              className="mt-2 w-full rounded-lg border bg-white p-3"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            >
+              <option value="all">Todos los estados</option>
+              <option value="blocking">Solo inventario retenido u ocupado</option>
+              <option value="reservation">Reservas</option>
+              <option value="block">Bloqueos</option>
+            </select>
+          </label>
         </div>
-        <label>
-          Mostrar
-          <select
-            aria-label="Mostrar"
-            className="mt-2 w-full rounded-lg border bg-white p-3"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-          >
-            <option value="all">Todos los estados</option>
-            <option value="blocking">Solo inventario retenido u ocupado</option>
-            <option value="reservation">Reservas</option>
-            <option value="block">Bloqueos</option>
-          </select>
-        </label>
-      </div>
+      )}
       {properties.error && (
         <p role="alert" className="mt-4">
           {properties.error.message}
