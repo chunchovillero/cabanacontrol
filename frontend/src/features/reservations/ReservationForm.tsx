@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
+import { SearchSelect } from '@/components/ui/search-select'
 import { useTenantContext } from '@/features/auth/TenantAccess'
 import { guestApi } from '@/features/guests/api'
 import { propertyApi } from '@/features/properties/api'
@@ -44,6 +45,7 @@ export function ReservationEditor({ item, inquiry }: { item?: Reservation; inqui
   })
   const {
     register,
+    setValue,
     watch,
     handleSubmit,
     formState: { errors, isSubmitting },
@@ -145,116 +147,63 @@ export function ReservationEditor({ item, inquiry }: { item?: Reservation; inqui
       className="mt-7 space-y-6 rounded-xl border border-border bg-white p-5 sm:p-7"
     >
       <div className="grid gap-6 sm:grid-cols-2">
+        <SearchSelect
+          label="Cabaña"
+          value={values.property_id}
+          selectedLabel={
+            item?.property_id === values.property_id
+              ? item.property_name
+              : initialPropertyQuery.data?.id === values.property_id
+                ? initialPropertyQuery.data.name
+                : undefined
+          }
+          options={(props.data?.results ?? []).map((p) => ({
+            value: p.id,
+            label: `${p.name} · ${p.capacity} personas`,
+          }))}
+          search={propertySearch}
+          onSearch={(text) => {
+            setPropertySearch(text)
+            setPropertyPage(1)
+          }}
+          onChange={(value) =>
+            setValue('property_id', value, { shouldValidate: true, shouldDirty: true })
+          }
+          loading={props.isPending}
+          error={props.error?.message ?? initialPropertyQuery.error?.message}
+          previous={!!props.data?.previous}
+          next={!!props.data?.next}
+          onPrevious={() => setPropertyPage(propertyPage - 1)}
+          onNext={() => setPropertyPage(propertyPage + 1)}
+        />
         <div>
-          <label className="text-sm font-medium" htmlFor="property-search">
-            Buscar cabaña
-          </label>
-          <input
-            id="property-search"
-            className={inputClass}
-            value={propertySearch}
-            onChange={(e) => {
-              setPropertySearch(e.target.value)
-              setPropertyPage(1)
-            }}
-            maxLength={150}
-          />
-          <label className="mt-4 block text-sm font-medium" htmlFor="reservation-property">
-            Cabaña
-          </label>
-          <select
-            id="reservation-property"
-            className={inputClass}
-            {...register('property_id')}
-            value={values.property_id}
-          >
-            <option value="">Seleccionar cabaña</option>
-            {!item &&
-              initialPropertyQuery.data &&
-              !props.data?.results.some((p) => p.id === initialProperty) && (
-                <option value={initialProperty}>{initialPropertyQuery.data.name}</option>
-              )}
-            {item && !props.data?.results.some((p) => p.id === item.property_id) && (
-              <option value={item.property_id}>{item.property_name}</option>
-            )}
-            {props.data?.results.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name} · {p.capacity} personas
-              </option>
-            ))}
-          </select>
-          {props.isPending && <p role="status">Cargando cabañas…</p>}
-          {props.error && <p role="alert">{props.error.message}</p>}
-          <div className="mt-3 flex flex-wrap gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={!props.data?.previous}
-              onClick={() => setPropertyPage(propertyPage - 1)}
-            >
-              Cabañas anteriores
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={!props.data?.next}
-              onClick={() => setPropertyPage(propertyPage + 1)}
-            >
-              Más cabañas
-            </Button>
-          </div>
-        </div>
-        <div>
-          <label className="text-sm font-medium" htmlFor="reservation-guest-search">
-            Buscar huésped
-          </label>
-          <input
-            id="reservation-guest-search"
-            className={inputClass}
-            value={guestSearch}
-            onChange={(e) => {
-              setGuestSearch(e.target.value)
+          <SearchSelect
+            label="Huésped principal"
+            value={values.primary_guest_id}
+            selectedLabel={
+              item?.primary_guest_id === values.primary_guest_id
+                ? `${item.guest.first_name} ${item.guest.last_name}`
+                : undefined
+            }
+            options={(guests.data?.results ?? []).map((g) => ({
+              value: g.id,
+              label: `${g.first_name} ${g.last_name} · ${g.document_masked}`,
+            }))}
+            search={guestSearch}
+            onSearch={(text) => {
+              setGuestSearch(text)
               setGuestPage(1)
             }}
-            maxLength={150}
-            autoComplete="off"
+            onChange={(value) =>
+              setValue('primary_guest_id', value, { shouldValidate: true, shouldDirty: true })
+            }
+            loading={guests.isPending}
+            error={guests.error?.message}
+            previous={guests.data?.has_previous}
+            next={guests.data?.has_next}
+            onPrevious={() => setGuestPage(guestPage - 1)}
+            onNext={() => setGuestPage(guestPage + 1)}
           />
-          <label className="mt-4 block text-sm font-medium" htmlFor="reservation-guest">
-            Huésped principal
-          </label>
-          <select id="reservation-guest" className={inputClass} {...register('primary_guest_id')}>
-            <option value="">Seleccionar huésped</option>
-            {item && !guests.data?.results.some((g) => g.id === item.primary_guest_id) && (
-              <option value={item.primary_guest_id}>
-                {item.guest.first_name} {item.guest.last_name}
-              </option>
-            )}
-            {guests.data?.results.map((g) => (
-              <option key={g.id} value={g.id}>
-                {g.first_name} {g.last_name} · {g.document_masked}
-              </option>
-            ))}
-          </select>
-          {guests.isPending && <p role="status">Cargando huéspedes…</p>}
-          {guests.error && <p role="alert">{guests.error.message}</p>}
-          <div className="mt-3 flex flex-wrap gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={!guests.data?.has_previous}
-              onClick={() => setGuestPage(guestPage - 1)}
-            >
-              Huéspedes anteriores
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={!guests.data?.has_next}
-              onClick={() => setGuestPage(guestPage + 1)}
-            >
-              Más huéspedes
-            </Button>
-          </div>
           {tenant.role !== 'staff' && (
             <Link
               className="mt-3 inline-block text-sm text-primary underline"

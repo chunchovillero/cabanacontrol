@@ -52,7 +52,6 @@ test('reservar con retención, evitar solapamientos, permitir recambio y bloquea
     notes: 'Nota restringida ficticia',
   })
   expect(guestResponse.status()).toBe(201)
-  const guest = await guestResponse.json()
   const context = await browser.newContext({
     baseURL: 'http://localhost:15174',
     viewport: page.viewportSize()!,
@@ -65,14 +64,13 @@ test('reservar con retención, evitar solapamientos, permitir recambio y bloquea
     const later = new Date(Date.now() + 50 * 86400000).toISOString().slice(0, 10)
     async function fill(startDate = start, endDate = end, status = 'pending') {
       await staff.goto('/reservas/nueva')
-      await staff.getByLabel('Buscar cabaña', { exact: true }).fill(name)
+      await staff.getByLabel('Cabaña', { exact: true }).fill(name)
       await expect(
         staff.getByRole('option', { name: `${name} · 4 personas`, exact: true }),
       ).toHaveCount(1)
-      await staff.getByLabel('Cabaña', { exact: true }).selectOption(property.id)
-      await staff.getByLabel('Buscar huésped', { exact: true }).fill(guestName)
-      await expect(staff.locator(`option[value="${guest.id}"]`)).toHaveCount(1)
-      await staff.getByLabel('Huésped principal', { exact: true }).selectOption(guest.id)
+      await staff.getByRole('option', { name: `${name} · 4 personas`, exact: true }).click()
+      await staff.getByLabel('Huésped principal', { exact: true }).fill(guestName)
+      await staff.getByRole('option', { name: new RegExp(guestName) }).click()
       await staff.getByLabel('Entrada', { exact: true }).fill(startDate)
       await staff.getByLabel('Salida (exclusiva)', { exact: true }).fill(endDate)
       await staff.getByLabel('Adultos', { exact: true }).fill('2')

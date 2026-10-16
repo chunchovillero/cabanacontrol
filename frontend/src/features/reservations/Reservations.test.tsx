@@ -128,8 +128,7 @@ describe('Fechas y reglas de formulario', () => {
     await act(async () => {
       resolveProperty(property)
     })
-    await waitFor(() => expect(select).toHaveValue(item.property_id))
-    expect(within(select).getByRole('option', { name: item.property_name })).toBeInTheDocument()
+    await waitFor(() => expect(select).toHaveValue(item.property_name))
   })
   it.each([
     ['2026-01-10T15:00', '2026-01-10T18:00:00.000Z'],
@@ -271,9 +270,12 @@ describe('Reservas y permisos', () => {
     vi.spyOn(reservationApi, 'save').mockResolvedValue(item)
     vi.spyOn(reservationApi, 'get').mockResolvedValue(item)
     mount('/reservas/nueva')
-    await screen.findByRole('option', { name: 'Cabaña ficticia · 4 personas' })
-    await userEvent.selectOptions(await screen.findByLabelText('Cabaña'), item.property_id)
-    await userEvent.selectOptions(await screen.findByLabelText('Huésped principal'), guest.id)
+    await userEvent.click(await screen.findByLabelText('Cabaña'))
+    await userEvent.click(
+      await screen.findByRole('option', { name: 'Cabaña ficticia · 4 personas' }),
+    )
+    await userEvent.click(await screen.findByLabelText('Huésped principal'))
+    await userEvent.click(await screen.findByRole('option', { name: /Persona ficticia Prueba/ }))
     await userEvent.type(screen.getByLabelText('Entrada'), '2099-01-10')
     await userEvent.type(screen.getByLabelText('Salida (exclusiva)'), '2099-01-12')
     await userEvent.type(screen.getByLabelText('Precio total pactado (CLP)'), '100000.25')

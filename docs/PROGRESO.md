@@ -1442,3 +1442,9 @@ Corregida selección visual de cabaña al crear reserva desde su ficha: el selec
 ahora refleja el valor del formulario cuando llegan sus opciones asíncronas. Prueba
 de regresión con cabaña fuera de la primera página y carga tardía aprobada, junto
 a las otras 19 pruebas de reservas.
+
+Formulario de reservas: Cabaña y Huésped principal pasan a un único combobox con
+búsqueda remota y selección, en lugar de input más select separados. Opciones con
+paginación dentro del desplegable, selección retenida al buscar, carga inicial de
+cabaña conservada y navegación de teclado. 20 pruebas de reservas aprobadas.
+Flujos E2E adaptados a los nuevos campos; no se ejecutó navegador en esta entrega.
