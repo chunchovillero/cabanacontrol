@@ -1437,3 +1437,8 @@ Calendario individual incorporado a la ficha de cada cabaña: vista mensual/sema
 navegación por fechas y eventos enlazados a reservas/bloqueos. Reutiliza calendario
 existente con property_id fijo y oculta el selector global de cabañas. Carga diferida
 para no cargar FullCalendar en el listado. Conserva fechas exclusivas y estilos móviles.
+
+Corregida selección visual de cabaña al crear reserva desde su ficha: el select
+ahora refleja el valor del formulario cuando llegan sus opciones asíncronas. Prueba
+de regresión con cabaña fuera de la primera página y carga tardía aprobada, junto
+a las otras 19 pruebas de reservas.

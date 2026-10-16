@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, within, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -87,6 +87,50 @@ afterEach(() => {
 })
 
 describe('Fechas y reglas de formulario', () => {
+  it('conserva la cabaña del enlace cuando sus opciones cargan después del formulario', async () => {
+    const property = {
+      id: item.property_id,
+      name: item.property_name,
+      code: 'CAB',
+      description: '',
+      address: '',
+      capacity: 4,
+      base_rate: '50000.00',
+      currency: 'CLP',
+      check_in_time: '15:00:00',
+      check_out_time: '11:00:00',
+      active: true,
+      photos: [],
+      created_at: item.created_at,
+      updated_at: item.updated_at,
+    }
+    let resolveProperty!: (value: typeof property) => void
+    vi.spyOn(propertyApi, 'get').mockReturnValue(
+      new Promise((resolve) => {
+        resolveProperty = resolve
+      }),
+    )
+    vi.spyOn(propertyApi, 'list').mockResolvedValue({
+      count: 0,
+      next: null,
+      previous: null,
+      results: [],
+    })
+    vi.spyOn(guestApi, 'search').mockResolvedValue({
+      count: 0,
+      page: 1,
+      has_next: false,
+      has_previous: false,
+      results: [],
+    })
+    mount(`/reservas/nueva?property_id=${item.property_id}`)
+    const select = await screen.findByLabelText('Cabaña')
+    await act(async () => {
+      resolveProperty(property)
+    })
+    await waitFor(() => expect(select).toHaveValue(item.property_id))
+    expect(within(select).getByRole('option', { name: item.property_name })).toBeInTheDocument()
+  })
   it.each([
     ['2026-01-10T15:00', '2026-01-10T18:00:00.000Z'],
     ['2026-07-10T15:00', '2026-07-10T19:00:00.000Z'],

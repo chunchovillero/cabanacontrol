@@ -162,7 +162,12 @@ export function ReservationEditor({ item, inquiry }: { item?: Reservation; inqui
           <label className="mt-4 block text-sm font-medium" htmlFor="reservation-property">
             Cabaña
           </label>
-          <select id="reservation-property" className={inputClass} {...register('property_id')}>
+          <select
+            id="reservation-property"
+            className={inputClass}
+            {...register('property_id')}
+            value={values.property_id}
+          >
             <option value="">Seleccionar cabaña</option>
             {!item &&
               initialPropertyQuery.data &&
