@@ -1452,3 +1452,5 @@ Flujos E2E adaptados a los nuevos campos; no se ejecutó navegador en esta entre
 Encabezado de todos los calendarios: título completo (mes y año o rango semanal)
 siempre centrado en la segunda fila, debajo de los controles, en móvil y escritorio.
 El título no admite salto interno y mantiene su ubicación al cambiar de mes.
+En móvil la cabecera usa dos columnas para controles y selector Mes/Semana en la
+primera fila; título en la segunda. Botones compactos para evitar una tercera fila.

@@ -19,10 +19,22 @@
 }
 @media (max-width: 639px) {
   .cabin-calendar .calendar-toolbar {
-    justify-content: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem 0.25rem;
   }
   .cabin-calendar .calendar-toolbar > * {
     max-width: 100%;
+  }
+  .cabin-calendar .calendar-toolbar > :has(.calendar-title) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  .cabin-calendar .calendar-toolbar button {
+    font-size: 0.7rem;
+    padding-inline: 0.4rem;
+    min-width: 0;
   }
   .cabin-calendar .calendar-title {
     font-size: 1rem;
