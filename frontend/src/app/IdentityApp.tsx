@@ -13,6 +13,7 @@ const SimulationPage = lazy(() =>
 )
 import { LoginPage, RecoverPage, ResetPage } from '@/features/auth/AuthPages'
 import { CompanyPage } from '@/features/auth/CompanyPage'
+import { AppNavigation } from '@/features/auth/AppNavigation'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
 import { HealthPage } from './HealthPage'
@@ -129,91 +130,19 @@ function Shell() {
             CabañaControl<span className="text-primary">.</span>
           </Link>
           {session && (
-            <nav
-              aria-label="Navegación principal"
-              className="flex flex-wrap items-center gap-4 text-sm"
-            >
-              <Link to="/" className="text-primary hover:underline">
-                Empresas
-              </Link>
-              <Link to="/configuracion" className="text-primary hover:underline">
-                Perfil y empresa
-              </Link>
-              <Link to="/conocer" className="text-primary hover:underline">
-                Conocer CabañaControl
-              </Link>
-              {session.active_tenant && (
-                <Link to="/cabanas" className="text-primary hover:underline">
-                  Cabañas
-                </Link>
-              )}
-              {session.active_tenant?.role === 'owner' && (
-                <Link to="/plan" className="text-primary hover:underline">
-                  Plan y uso
-                </Link>
-              )}
-              {session.active_tenant?.role === 'owner' && (
-                <Link to="/usuarios" className="text-primary hover:underline">
-                  Usuarios
-                </Link>
-              )}
-              {session.active_tenant && (
-                <Link to="/huespedes" className="text-primary hover:underline">
-                  Huéspedes
-                </Link>
-              )}
-              {session.active_tenant && (
-                <Link to="/reservas" className="text-primary hover:underline">
-                  Reservas
-                </Link>
-              )}
-              {session.active_tenant && (
-                <Link to="/panel" className="text-primary hover:underline">
-                  Panel
-                </Link>
-              )}
-              {session.active_tenant && (
-                <Link to="/calendario" className="text-primary hover:underline">
-                  Calendario
-                </Link>
-              )}
-              {session.active_tenant && (
-                <Link to="/reportes" className="text-primary hover:underline">
-                  Reportes
-                </Link>
-              )}
-              {session.active_tenant && (
-                <Link to="/operacion" className="text-primary hover:underline">
-                  Operación
-                </Link>
-              )}
-              <Button
-                variant="outline"
-                disabled={loggingOut}
-                onClick={() => {
-                  void logout()
-                }}
-              >
-                {loggingOut ? 'Cerrando…' : 'Cerrar sesión'}
-              </Button>
-              {session.active_tenant && (
-                <>
-                  <Link to="/asistente" className="text-primary hover:underline">
-                    Asistente
-                  </Link>
-                  <Link to="/consultas" className="text-primary hover:underline">
-                    Consultas
-                  </Link>
-                  <Link to="/whatsapp" className="text-primary hover:underline">
-                    WhatsApp
-                  </Link>
-                </>
-              )}
-            </nav>
+            <AppNavigation
+              session={session}
+              loggingOut={loggingOut}
+              logout={() => {
+                void logout()
+              }}
+            />
           )}
         </div>
       </header>
-      <main className="mx-auto max-w-5xl px-5 py-10 sm:px-6 sm:py-16">
+      <main
+        className={`mx-auto max-w-5xl px-5 py-8 sm:px-6 sm:py-12 ${session ? 'pb-[calc(6rem+env(safe-area-inset-bottom))] lg:pb-12' : ''}`}
+      >
         {logoutError && (
           <p role="alert" className="mb-5 text-red-800">
             {logoutError}

@@ -139,6 +139,7 @@ describe('Identidad', () => {
     })
     const client = mount()
     client.setQueryData(['private-company-data'], { confidential: true })
+    await userEvent.click(await screen.findByRole('button', { name: 'Más opciones' }))
     await userEvent.click(await screen.findByRole('button', { name: 'Cerrar sesión' }))
     expect(await screen.findByRole('link', { name: /Ingresar a mi cuenta/ })).toBeInTheDocument()
     expect(client.getQueryData(['private-company-data'])).toBeUndefined()

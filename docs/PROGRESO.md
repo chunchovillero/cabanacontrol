@@ -1411,3 +1411,11 @@ en el selector y cero empresas conserva el mensaje vigente.
 Verificación: 11 pruebas de identidad aprobadas y ESLint aprobado. Se corrigió la
 redirección de las pantallas de ingreso/registro cuando la sesión ya contiene la
 empresa seleccionada, para que termine en el panel.
+
+## Navegación responsive ordenada
+
+Barra principal con Panel, Reservas, Calendario y Operación. En pantallas menores
+a 1024 px se fija al pie con acceso Más; el contenido reserva espacio inferior y
+respeta el área segura del dispositivo. Opciones adicionales agrupadas en Alojamiento,
+Atención y Cuenta, conservando las opciones según rol. Escritorio usa navegación
+compacta y menú adicional. ESLint y las 11 pruebas de identidad aprobados.
