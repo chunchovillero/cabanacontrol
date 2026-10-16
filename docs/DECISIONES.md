@@ -735,3 +735,10 @@ sigue desactivado en producción. Sesión Django, CSRF y límites por IP se cons
 El backend productivo conserva su red sin salida general. El proxy, ya conectado a
 edge, retransmite únicamente el documento JWKS público de Google por una ruta interna
 restringida al rango Docker; PostgreSQL permanece exclusivamente en la red interna.
+
+## Entrada directa con empresa única (15-10-2026)
+
+Después de cualquier login, si la cuenta tiene exactamente una membresía activa, el
+frontend la selecciona mediante el endpoint normal y entra al panel administrativo.
+Con dos o más empresas conserva el selector; sin empresas conserva el aviso existente.
+No se confía en IDs locales ni se altera el flujo para cambiar empresa posteriormente.

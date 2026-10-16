@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { z } from 'zod'
 import { api, type Session } from '@/lib/api'
 import { Button } from '@/components/ui/button'
+import { finishSignIn } from './finishSignIn'
 
 declare global {
   interface Window {
@@ -44,10 +45,11 @@ export function GoogleSignIn({ options }: { options: RegistrationOptions }) {
 
   const complete = useCallback(
     async (session: Session) => {
+      const completed = await finishSignIn(session)
       await queryClient.cancelQueries()
       queryClient.removeQueries({ predicate: (query) => query.queryKey[0] !== 'session' })
-      queryClient.setQueryData(['session'], session)
-      navigate('/', { replace: true })
+      queryClient.setQueryData(['session'], completed.session)
+      navigate(completed.destination, { replace: true })
     },
     [navigate, queryClient],
   )
@@ -67,7 +69,7 @@ export function GoogleSignIn({ options }: { options: RegistrationOptions }) {
             .googleAuth(value)
             .then((result) => {
               if ('requires_company' in result) setProfile(result.profile)
-              else void complete(result)
+              else return complete(result)
             })
             .catch((failure: unknown) =>
               setError(

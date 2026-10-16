@@ -54,7 +54,7 @@ describe('Identidad', () => {
     expect(login).not.toHaveBeenCalled()
   })
 
-  it('inicia sesión y permite seleccionar una empresa', async () => {
+  it('inicia sesión y entra directo cuando solo tiene una empresa', async () => {
     vi.spyOn(api, 'me').mockResolvedValue(null)
     vi.spyOn(api, 'login').mockImplementation(async () => {
       vi.spyOn(api, 'me').mockResolvedValue(session)
@@ -66,15 +66,25 @@ describe('Identidad', () => {
     await userEvent.type(await screen.findByLabelText('Correo electrónico'), session.email)
     await userEvent.type(screen.getByLabelText('Contraseña'), 'Test-strong-passphrase-2026')
     await userEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }))
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: 'Seleccionar Empresa de prueba',
-      }),
-    )
-    expect(await screen.findByRole('region', { name: 'Empresa activa' })).toHaveTextContent(
-      tenant.name,
-    )
-    expect(select).toHaveBeenCalledWith(tenant.id)
+    await waitFor(() => expect(select).toHaveBeenCalledWith(tenant.id))
+    expect(await screen.findByRole('heading', { name: 'Panel administrativo' })).toBeInTheDocument()
+  })
+
+  it('mantiene el selector cuando tiene varias empresas', async () => {
+    vi.spyOn(api, 'me').mockResolvedValue(null)
+    vi.spyOn(api, 'login').mockResolvedValue(session)
+    const second = { ...tenant, id: '33333333-3333-4333-8333-333333333333', name: 'Otra empresa' }
+    vi.spyOn(api, 'tenants').mockResolvedValue([tenant, second])
+    const select = vi.spyOn(api, 'selectTenant')
+    mount('/ingresar')
+    await userEvent.type(await screen.findByLabelText('Correo electrónico'), session.email)
+    await userEvent.type(screen.getByLabelText('Contraseña'), 'Test-strong-passphrase-2026')
+    await userEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }))
+    expect(
+      await screen.findByRole('button', { name: 'Seleccionar Empresa de prueba' }),
+    ).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Seleccionar Otra empresa' })).toBeVisible()
+    expect(select).not.toHaveBeenCalled()
   })
 
   it('informa bloqueo por intentos y permite corregir datos', async () => {

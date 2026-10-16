@@ -1403,3 +1403,11 @@ Primera prueba real mostró indisponibilidad al descargar claves públicas: la r
 interna bloqueaba DNS/salida. Se mantuvo el aislamiento y se agregó al proxy edge una
 ruta interna restringida que retransmite solo el JWKS de Google. Pendiente repetir
 el clic real después del redespliegue.
+
+Solicitud posterior: ingreso directo cuando existe una sola empresa. Implementado en
+el cierre común de sesión para contraseña y Google; usa listado y selección autorizados
+por backend, actualiza la sesión en caché y navega a `/panel`. Varias empresas siguen
+en el selector y cero empresas conserva el mensaje vigente.
+Verificación: 11 pruebas de identidad aprobadas y ESLint aprobado. Se corrigió la
+redirección de las pantallas de ingreso/registro cuando la sesión ya contiene la
+empresa seleccionada, para que termine en el panel.

@@ -9,6 +9,7 @@ import { api } from '@/lib/api'
 import { useAuth } from './AuthProvider'
 import { RegistrationLink } from './RegisterPage'
 import { GoogleSignIn, registrationOptions } from './GoogleSignIn'
+import { finishSignIn } from './finishSignIn'
 
 const loginSchema = z.object({
   email: z.email('Ingresa un correo válido.'),
@@ -58,17 +59,18 @@ export function LoginPage() {
   } = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
   })
-  if (session) return <Navigate to="/" replace />
+  if (session) return <Navigate to={session.active_tenant ? '/panel' : '/'} replace />
   const submit = handleSubmit(async (values) => {
     setError('')
     try {
       const result = await api.login(values)
+      const completed = await finishSignIn(result)
       await queryClient.cancelQueries()
       queryClient.removeQueries({
         predicate: (query) => query.queryKey[0] !== 'session',
       })
-      queryClient.setQueryData(['session'], result)
-      navigate('/', { replace: true })
+      queryClient.setQueryData(['session'], completed.session)
+      navigate(completed.destination, { replace: true })
     } catch (failure) {
       setError(failure instanceof Error ? failure.message : 'No se pudo iniciar sesión.')
     }

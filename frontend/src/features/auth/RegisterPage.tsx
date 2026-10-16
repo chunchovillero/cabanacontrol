@@ -28,7 +28,7 @@ export function RegisterPage() {
     queryKey: ['registration-options'],
     queryFn: registrationOptions,
   })
-  if (session) return <Navigate to="/" replace />
+  if (session) return <Navigate to={session.active_tenant ? '/panel' : '/'} replace />
   return (
     <AuthCard title="Crea tu cuenta y empresa">
       {done ? (
